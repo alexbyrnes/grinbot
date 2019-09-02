@@ -6,5 +6,7 @@ edition = "2018"
 
 [dependencies]
 telegram-bot = "0.6.3"
+tokio = "0.1.11"
 tokio-core = "0.1"
 futures = "0.1"
+redux-rs = "0.1.0"
