@@ -4,25 +4,29 @@ mod template;
 mod types;
 
 extern crate futures;
+extern crate reqwest;
 extern crate telegram_bot;
 extern crate tokio_core;
-extern crate reqwest;
 
 use futures::Stream;
+use redux_rs::Store;
 use telegram_bot::*;
 use tokio_core::reactor::Core;
-use redux_rs::Store;
 use url::Url;
 
-use controller::types::{State, Action, Screen, SendCommand};
-use types::Context;
+use controller::dispatch::screen_reducer;
+use controller::types::{Action, Screen, SendCommand, State};
 use service::telegram::TelegramService;
 use service::types::GrinAmount;
-use controller::dispatch::screen_reducer;
+use types::Context;
 
-
-
-fn dispatch_command(store: &mut Store<State, Action>, command_type: &str, id: i64, username: Option<String>, command: Vec<&str>) {
+fn dispatch_command(
+    store: &mut Store<State, Action>,
+    command_type: &str,
+    id: i64,
+    username: Option<String>,
+    command: Vec<&str>,
+) {
     if username.is_none() {
         store.dispatch(Action::NoUsername(id));
         return;
@@ -31,16 +35,14 @@ fn dispatch_command(store: &mut Store<State, Action>, command_type: &str, id: i6
     match command_type {
         "/home" => store.dispatch(Action::Home(id)),
         "/create" => store.dispatch(Action::Create(id, username.unwrap())),
-        "/send" => {
-            match SendCommand::parse(command) {
-                Ok(send_command) => {
-                    let amount = GrinAmount::new(send_command.amount);
-                    let url = send_command.destination.unwrap();
-                    store.dispatch(Action::Send(id, username.unwrap(), amount, url));
-                }
-                Err(error) => store.dispatch(Action::CommandError(id, error))
+        "/send" => match SendCommand::parse(command) {
+            Ok(send_command) => {
+                let amount = GrinAmount::new(send_command.amount);
+                let url = send_command.destination.unwrap();
+                store.dispatch(Action::Send(id, username.unwrap(), amount, url));
             }
-        }
+            Err(error) => store.dispatch(Action::CommandError(id, error)),
+        },
         "/help" => store.dispatch(Action::Help(id)),
         "/back" => store.dispatch(Action::Back(id)),
         _ => store.dispatch(Action::Unknown(id)),
@@ -57,7 +59,11 @@ fn get_new_ui(state: &State) -> SendMessage {
         },
     );
 
-    let keyboard = reply_markup!(reply_keyboard, selective, one_time, resize,
+    let keyboard = reply_markup!(
+        reply_keyboard,
+        selective,
+        one_time,
+        resize,
         ["/create", "/send"],
         ["/help", "/home"],
         ["/back"]
@@ -80,7 +86,7 @@ fn main() {
         prev_screen: Screen::Home,
         screen: Screen::Home,
         message: None,
-        context: context
+        context: context,
     };
 
     let mut store = Store::new(screen_reducer, initial_state);
@@ -120,4 +126,3 @@ fn main() {
 
     core.run(future).unwrap();
 }
-

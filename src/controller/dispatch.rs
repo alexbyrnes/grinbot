@@ -1,7 +1,7 @@
 use askama::Template;
 
 use crate::service::grin;
-use crate::{State, Action, Screen};
+use crate::{Action, Screen, State};
 
 use crate::template::seed::SeedTemplate;
 
@@ -10,47 +10,52 @@ pub fn screen_reducer(state: &State, action: &Action) -> State {
     match action {
         Action::Home(id) => State {
             prev_screen: Screen::Home,
-            screen: Screen::Home, 
+            screen: Screen::Home,
             id: Some(*id),
             message: None,
-            context: s.context
+            context: s.context,
         },
         Action::Create(id, username) => {
             let base_dir = "/tmp/wallets";
             let message = match grin::new_wallet(&username, base_dir, "") {
                 Ok(seed) => SeedTemplate { seed: &seed }.render().unwrap(),
-                Err(e) => format!("Error: {}", e) 
+                Err(e) => format!("Error: {}", e),
             };
 
             State {
-                screen: Screen::Create, 
+                screen: Screen::Create,
                 id: Some(*id),
                 message: Some(message),
                 ..s
             }
-        },
+        }
         Action::Send(id, username, amount, destination) => {
-            let message = match grin::send(username, *amount, destination.as_str(), &s.context.http_client) {
+            let message = match grin::send(
+                username,
+                *amount,
+                destination.as_str(),
+                &s.context.http_client,
+            ) {
                 Ok(msg) => format!("<b>Success:</b>\n{}", msg),
-                Err(e) => format!("Error: {}", e) 
+                Err(e) => format!("Error: {}", e),
             };
-           
+
             State {
-                screen: Screen::Send, 
+                screen: Screen::Send,
                 id: Some(*id),
-                message: Some(message), 
+                message: Some(message),
                 ..s
             }
-        },
+        }
         Action::Help(id) => State {
-            screen: Screen::Help, 
+            screen: Screen::Help,
             id: Some(*id),
             message: None,
             ..s
         },
         Action::NoUsername(id) => State {
             id: Some(*id),
-            message: Some("You must have a username to use GrinBot.".into()), 
+            message: Some("You must have a username to use GrinBot.".into()),
             ..s
         },
         Action::Back(id) => State {
@@ -61,7 +66,7 @@ pub fn screen_reducer(state: &State, action: &Action) -> State {
         },
         Action::CommandError(id, error) => State {
             id: Some(*id),
-            message: Some(format!("Error: {:?}", error)), 
+            message: Some(format!("Error: {:?}", error)),
             ..s
         },
 
@@ -69,7 +74,6 @@ pub fn screen_reducer(state: &State, action: &Action) -> State {
             id: Some(*id),
             message: None,
             ..s
-        }
+        },
     }
 }
-

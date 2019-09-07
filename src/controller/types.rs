@@ -7,11 +7,11 @@ use crate::types::Context;
 
 #[derive(Default, Clone)]
 pub struct State {
-    pub screen: Screen, 
+    pub screen: Screen,
     pub prev_screen: Screen,
     pub id: Option<i64>,
     pub message: Option<String>,
-    pub context: Context 
+    pub context: Context,
 }
 
 #[derive(Debug, Clone)]
@@ -19,7 +19,7 @@ pub enum Screen {
     Home,
     Create,
     Send,
-    Help
+    Help,
 }
 
 impl Default for Screen {
@@ -37,9 +37,8 @@ pub enum Action {
     NoUsername(i64),
     Back(i64),
     CommandError(i64, Box<dyn Error>),
-    Unknown(i64)
+    Unknown(i64),
 }
-
 
 #[derive(Debug)]
 struct CommandTooShortError;
@@ -52,8 +51,6 @@ impl fmt::Display for CommandTooShortError {
     }
 }
 
-
-
 #[derive(Default, Clone)]
 pub struct SendCommand {
     pub amount: f64,
@@ -61,19 +58,15 @@ pub struct SendCommand {
 }
 
 impl SendCommand {
-
     pub fn parse(command: Vec<&str>) -> Result<Self, Box<dyn Error>> {
         if command.len() != 2 {
             return Err(Box::new(CommandTooShortError));
         } else {
             let url = Url::parse(command[1])?;
             Ok(SendCommand {
-                amount: command[0].parse::<f64>()?, 
-                destination: Some(url) 
+                amount: command[0].parse::<f64>()?,
+                destination: Some(url),
             })
-
         }
-
     }
 }
-
