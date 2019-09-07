@@ -1,66 +1,74 @@
-#[derive(Default, Clone)]
-pub struct State {
-    pub screen: Screen, 
-    pub prev_screen: Screen,
-    pub id: Option<i64>,
-}
+use askama::Template;
 
-#[derive(Debug, Clone)]
-pub enum Screen {
-    Home,
-    Create,
-    Send,
-    Help
-}
+use crate::service::grin;
+use crate::{State, Action, Screen};
 
-impl Default for Screen {
-    fn default() -> Screen {
-        Screen::Home
-    }
-}
-
-#[derive(Debug)]
-pub enum Action {
-    Home(i64),
-    Create(i64),
-    Send(i64),
-    Help(i64),
-    Back(i64),
-    Unknown(i64)
-}
+use crate::template::seed::SeedTemplate;
 
 pub fn screen_reducer(state: &State, action: &Action) -> State {
     let s = state.clone();
-    match *action {
+    match action {
         Action::Home(id) => State {
             prev_screen: Screen::Home,
             screen: Screen::Home, 
-            id: Some(id),
+            id: Some(*id),
+            message: None,
+            context: s.context
         },
-        Action::Create(id) => State {
-            prev_screen: s.screen,
-            screen: Screen::Create, 
-            id: Some(id),
+        Action::Create(id, username) => {
+            let base_dir = "/tmp/wallets";
+            let message = match grin::new_wallet(&username, base_dir, "") {
+                Ok(seed) => SeedTemplate { seed: &seed }.render().unwrap(),
+                Err(e) => format!("Error: {}", e) 
+            };
+
+            State {
+                screen: Screen::Create, 
+                id: Some(*id),
+                message: Some(message),
+                ..s
+            }
         },
-        Action::Send(id) => State {
-            prev_screen: s.screen,
-            screen: Screen::Send, 
-            id: Some(id),
+        Action::Send(id, username, amount, destination) => {
+            let message = match grin::send(username, *amount, destination.as_str(), &s.context.http_client) {
+                Ok(msg) => format!("<b>Success:</b>\n{}", msg),
+                Err(e) => format!("Error: {}", e) 
+            };
+           
+            State {
+                screen: Screen::Send, 
+                id: Some(*id),
+                message: Some(message), 
+                ..s
+            }
         },
         Action::Help(id) => State {
-            prev_screen: s.screen,
             screen: Screen::Help, 
-            id: Some(id),
+            id: Some(*id),
+            message: None,
+            ..s
+        },
+        Action::NoUsername(id) => State {
+            id: Some(*id),
+            message: Some("You must have a username to use GrinBot.".into()), 
+            ..s
         },
         Action::Back(id) => State {
             prev_screen: Screen::Home,
-            screen: s.prev_screen,  
-            id: Some(id),
+            id: Some(*id),
+            message: None,
+            ..s
         },
+        Action::CommandError(id, error) => State {
+            id: Some(*id),
+            message: Some(format!("Error: {:?}", error)), 
+            ..s
+        },
+
         Action::Unknown(id) => State {
-            prev_screen: s.prev_screen,
-            screen: s.screen,  
-            id: Some(id),
+            id: Some(*id),
+            message: None,
+            ..s
         }
     }
 }
