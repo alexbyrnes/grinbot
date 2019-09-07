@@ -14,8 +14,9 @@ use grin_wallet_libwallet::{InitTxArgs, InitTxSendArgs};
 use crate::service::types::{
     Args, CreateWalletError, GrinAmount, NanoGrinAmount, RpcRequest, RpcResponse, WalletExistsError,
 };
-use crate::template::send::SendSuccessTemplate;
+use crate::template::templates::SendSuccessTemplate;
 
+/// Sends Grin
 pub fn send(
     username: &str,
     amount: GrinAmount,
@@ -78,6 +79,7 @@ pub fn send(
     Ok(message)
 }
 
+/// Generates new wallet and returns the seed.
 pub fn new_wallet(
     username: &str,
     base_dir: &str,

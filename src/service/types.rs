@@ -1,9 +1,9 @@
 use std::{error::Error, fmt};
 
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-use serde::{Deserialize, Serialize};
-
+/// Wallet directory already exists.
 #[derive(Debug)]
 pub struct WalletExistsError;
 
@@ -15,6 +15,7 @@ impl fmt::Display for WalletExistsError {
     }
 }
 
+/// Error creating wallet.
 #[derive(Debug)]
 pub struct CreateWalletError;
 
@@ -26,6 +27,7 @@ impl fmt::Display for CreateWalletError {
     }
 }
 
+/// RPC request to the Grin wallet owner API.
 #[derive(Serialize, Deserialize, Debug)]
 pub struct RpcRequest {
     pub id: String,
@@ -34,11 +36,13 @@ pub struct RpcRequest {
     pub params: Option<Value>,
 }
 
+/// Imitates a library wrapper used by the Grin wallet.
 #[derive(Serialize, Deserialize, Debug)]
 pub struct MaybeReply {
     pub Ok: Value,
 }
 
+/// RPC response from the Grin wallet owner API.
 #[derive(Serialize, Deserialize, Debug)]
 pub struct RpcResponse {
     pub id: String,
@@ -47,17 +51,20 @@ pub struct RpcResponse {
     pub error: Option<Value>,
 }
 
+/// RPC error response from the Grin wallet owner API.
 #[derive(Serialize, Deserialize, Debug)]
 pub struct RpcError {
     pub code: i32,
     pub message: String,
 }
 
+/// Arguments sent to Grin wallet owner API.
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Args {
     pub args: Option<Value>,
 }
 
+/// An amount of whole Grin.
 #[derive(Debug, Copy, Clone)]
 pub struct GrinAmount {
     amount: f64,
@@ -77,6 +84,7 @@ impl GrinAmount {
     }
 }
 
+/// Amount of Nano Grin (one billionth of a Grin).
 #[derive(Debug, Copy, Clone)]
 pub struct NanoGrinAmount {
     amount: f64,

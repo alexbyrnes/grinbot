@@ -1,6 +1,8 @@
 mod controller;
 mod service;
 mod template;
+
+/// Application-level types.
 mod types;
 
 extern crate futures;
@@ -12,7 +14,6 @@ use futures::Stream;
 use redux_rs::Store;
 use telegram_bot::*;
 use tokio_core::reactor::Core;
-use url::Url;
 
 use controller::dispatch::screen_reducer;
 use controller::types::{Action, Screen, SendCommand, State};
@@ -20,6 +21,14 @@ use service::telegram::TelegramService;
 use service::types::GrinAmount;
 use types::Context;
 
+/// Dispatches a command entered by user.
+///
+/// # Example
+///
+/// ```
+/// let mut store = Store::new(screen_reducer, State::default());
+/// dispatch_command(&mut store, "/send", 99, Some("user_user123".into()), vec!["0.01", "http://recipient123.org"]);
+/// ```
 fn dispatch_command(
     store: &mut Store<State, Action>,
     command_type: &str,
@@ -49,6 +58,13 @@ fn dispatch_command(
     }
 }
 
+/// Returns the next Telegram message from the current state.
+///
+/// # Example
+///
+/// ```
+/// let msg = get_new_ui(store.state());
+/// ```
 fn get_new_ui(state: &State) -> SendMessage {
     let mut msg = SendMessage::new(
         ChatId::new(state.id.unwrap()),

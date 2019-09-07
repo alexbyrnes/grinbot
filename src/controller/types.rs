@@ -5,6 +5,7 @@ use std::{error::Error, fmt};
 use crate::service::types::GrinAmount;
 use crate::types::Context;
 
+/// Application state: which screen the user is on, previous screen, message to return.
 #[derive(Default, Clone)]
 pub struct State {
     pub screen: Screen,
@@ -14,6 +15,7 @@ pub struct State {
     pub context: Context,
 }
 
+/// Screens (the user's current view/state shown via Telegram message & keyboard).
 #[derive(Debug, Clone)]
 pub enum Screen {
     Home,
@@ -28,6 +30,7 @@ impl Default for Screen {
     }
 }
 
+/// Actions that modify the application state.
 #[derive(Debug)]
 pub enum Action {
     Home(i64),
@@ -40,6 +43,7 @@ pub enum Action {
     Unknown(i64),
 }
 
+/// Error for user commands that don't have enough parameters.
 #[derive(Debug)]
 struct CommandTooShortError;
 
@@ -51,6 +55,7 @@ impl fmt::Display for CommandTooShortError {
     }
 }
 
+/// A parsed send command.
 #[derive(Default, Clone)]
 pub struct SendCommand {
     pub amount: f64,
@@ -58,6 +63,7 @@ pub struct SendCommand {
 }
 
 impl SendCommand {
+    /// Convert string tokens of user command parameters to valid Url and float.
     pub fn parse(command: Vec<&str>) -> Result<Self, Box<dyn Error>> {
         if command.len() != 2 {
             return Err(Box::new(CommandTooShortError));
