@@ -1,2 +1,2 @@
-pub mod seed;
-pub mod send;
+//! HTML templates for Telegram messages
+pub mod templates;

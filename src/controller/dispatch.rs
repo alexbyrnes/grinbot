@@ -3,8 +3,9 @@ use askama::Template;
 use crate::service::grin;
 use crate::{Action, Screen, State};
 
-use crate::template::seed::SeedTemplate;
+use crate::template::templates::SeedTemplate;
 
+/// Main UI reducer: Returns a new State from an Action.
 pub fn screen_reducer(state: &State, action: &Action) -> State {
     let s = state.clone();
     match action {

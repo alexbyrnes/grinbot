@@ -1,5 +1,6 @@
 use reqwest::Client;
 
+/// Global application context.
 #[derive(Debug, Clone)]
 pub struct Context {
     pub http_client: Client,
