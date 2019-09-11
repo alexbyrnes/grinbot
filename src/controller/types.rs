@@ -1,7 +1,5 @@
 use url::Url;
 
-use std::{error::Error, fmt};
-
 use crate::service::types::GrinAmount;
 use crate::types::Context;
 
@@ -31,7 +29,7 @@ impl Default for Screen {
 }
 
 /// Actions that modify the application state.
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum Action {
     Home(i64),
     Create(i64, String),
@@ -39,20 +37,8 @@ pub enum Action {
     Help(i64),
     NoUsername(i64),
     Back(i64),
-    CommandError(i64, Box<dyn Error>),
+    CommandError(i64, CommandParseError),
     Unknown(i64),
-}
-
-/// Error for user commands that don't have enough parameters.
-#[derive(Debug)]
-struct CommandTooShortError;
-
-impl Error for CommandTooShortError {}
-
-impl fmt::Display for CommandTooShortError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Command too short")
-    }
 }
 
 /// A parsed send command.
@@ -64,15 +50,31 @@ pub struct SendCommand {
 
 impl SendCommand {
     /// Convert string tokens of user command parameters to valid Url and float.
-    pub fn parse(command: Vec<&str>) -> Result<Self, Box<dyn Error>> {
+    pub fn parse(command: Vec<&str>) -> Result<Self, CommandParseError> {
+        use CommandParseError::*;
         if command.len() != 2 {
-            return Err(Box::new(CommandTooShortError));
+            return Err(CommandTooShortError);
         } else {
-            let url = Url::parse(command[1])?;
+            let url = match Url::parse(command[1]) {
+                Ok(url) => url,
+                Err(_) => return Err(UrlParseError),
+            };
+            let amount = match command[0].parse::<f64>() {
+                Ok(amount) => amount,
+                Err(_) => return Err(AmountParseError),
+            };
             Ok(SendCommand {
-                amount: command[0].parse::<f64>()?,
+                amount,
                 destination: Some(url),
             })
         }
     }
+}
+
+/// Errors associated with parsing commands
+#[derive(Debug, PartialEq)]
+pub enum CommandParseError {
+    CommandTooShortError,
+    UrlParseError,
+    AmountParseError,
 }

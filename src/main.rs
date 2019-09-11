@@ -26,35 +26,32 @@ use types::Context;
 /// # Example
 ///
 /// ```
-/// let mut store = Store::new(screen_reducer, State::default());
-/// dispatch_command(&mut store, "/send", 99, Some("user_user123".into()), vec!["0.01", "http://recipient123.org"]);
+/// get_command("/send", 99, Some("user_user123".into()), vec!["0.01", "http://recipient123.org"]);
 /// ```
-fn dispatch_command(
-    store: &mut Store<State, Action>,
+fn get_command(
     command_type: &str,
     id: i64,
     username: Option<String>,
     command: Vec<&str>,
-) {
+) -> Action {
     if username.is_none() {
-        store.dispatch(Action::NoUsername(id));
-        return;
+        return Action::NoUsername(id);
     }
 
     match command_type {
-        "/home" => store.dispatch(Action::Home(id)),
-        "/create" => store.dispatch(Action::Create(id, username.unwrap())),
+        "/home" => Action::Home(id),
+        "/create" => Action::Create(id, username.unwrap()),
         "/send" => match SendCommand::parse(command) {
             Ok(send_command) => {
                 let amount = GrinAmount::new(send_command.amount);
                 let url = send_command.destination.unwrap();
-                store.dispatch(Action::Send(id, username.unwrap(), amount, url));
+                Action::Send(id, username.unwrap(), amount, url)
             }
-            Err(error) => store.dispatch(Action::CommandError(id, error)),
+            Err(error) => Action::CommandError(id, error),
         },
-        "/help" => store.dispatch(Action::Help(id)),
-        "/back" => store.dispatch(Action::Back(id)),
-        _ => store.dispatch(Action::Unknown(id)),
+        "/help" => Action::Help(id),
+        "/back" => Action::Back(id),
+        _ => Action::Unknown(id),
     }
 }
 
@@ -117,7 +114,8 @@ fn main() {
                     let command = message_tokens[1..].to_vec();
                     let id = message.chat.id().into();
                     if let MessageChat::Private(user) = message.chat {
-                        dispatch_command(&mut store, command_type, id, user.username, command);
+                        let command = get_command(command_type, id, user.username, command);
+                        store.dispatch(command);
                         let msg = get_new_ui(store.state());
                         ts.api.spawn(msg);
                     }
@@ -130,7 +128,8 @@ fn main() {
                 let command = message_tokens[1..].to_vec();
                 let id = query.message.chat.id().into();
                 if let MessageChat::Private(user) = query.message.chat {
-                    dispatch_command(&mut store, command_type, id, user.username, command);
+                    let command = get_command(command_type, id, user.username, command);
+                    store.dispatch(command);
                     let msg = get_new_ui(store.state());
                     ts.api.spawn(msg);
                 }
@@ -141,4 +140,64 @@ fn main() {
     });
 
     core.run(future).unwrap();
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_home_command() {
+        let command = get_command("/home", 99, Some("user123".into()), vec![]);
+        assert_eq!(command, Action::Home(99));
+    }
+
+    #[test]
+    fn test_unknown_command() {
+        let command = get_command("/abcd", 100, Some("user123".into()), vec![]);
+        assert_eq!(command, Action::Unknown(100));
+    }
+
+    #[test]
+    fn test_no_username_command() {
+        let command = get_command("/send", 101, None, vec![]);
+        assert_eq!(command, Action::NoUsername(101));
+    }
+
+    #[test]
+    fn test_send_command() {
+        use url::Url;
+
+        let command = get_command(
+            "/send",
+            102,
+            Some("user123".into()),
+            vec!["0.01", "https://recipient123.org"],
+        );
+        let url = Url::parse("https://recipient123.org").ok().unwrap();
+        assert_eq!(
+            command,
+            Action::Send(102, "user123".into(), GrinAmount::new(0.01), url)
+        );
+    }
+
+    #[test]
+    fn test_no_recipient_send_command() {
+        use controller::types::CommandParseError::*;
+        let command = get_command("/send", 103, Some("user123".into()), vec!["0.01"]);
+        assert_eq!(command, Action::CommandError(103, CommandTooShortError));
+    }
+
+    #[test]
+    fn test_no_amount_send_command() {
+        use controller::types::CommandParseError::*;
+        let command = get_command(
+            "/send",
+            103,
+            Some("user123".into()),
+            vec!["https://recipient123.org"],
+        );
+        assert_eq!(command, Action::CommandError(103, CommandTooShortError));
+    }
+
 }
