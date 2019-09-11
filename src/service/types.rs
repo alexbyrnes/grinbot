@@ -65,7 +65,7 @@ pub struct Args {
 }
 
 /// An amount of whole Grin.
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct GrinAmount {
     amount: f64,
 }
