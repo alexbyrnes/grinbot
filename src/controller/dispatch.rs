@@ -59,6 +59,13 @@ pub fn screen_reducer(state: &State, action: &Action) -> State {
             message: Some("You must have a username to use GrinBot.".into()),
             ..s
         },
+        Action::ModeNotSupported(id) => State {
+            id: Some(*id),
+            message: Some(
+                "For security reasons, inline and group messages are not supported.".into(),
+            ),
+            ..s
+        },
         Action::Back(id) => State {
             prev_screen: Screen::Home,
             id: Some(*id),
@@ -70,7 +77,6 @@ pub fn screen_reducer(state: &State, action: &Action) -> State {
             message: Some(format!("Error: {:?}", error)),
             ..s
         },
-
         Action::Unknown(id) => State {
             id: Some(*id),
             message: None,

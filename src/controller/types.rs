@@ -36,6 +36,7 @@ pub enum Action {
     Send(i64, String, GrinAmount, Url),
     Help(i64),
     NoUsername(i64),
+    ModeNotSupported(i64),
     Back(i64),
     CommandError(i64, CommandParseError),
     Unknown(i64),

@@ -105,41 +105,53 @@ fn main() {
     let mut store = Store::new(screen_reducer, initial_state);
 
     let future = ts.api.stream().for_each(|update| {
-        match update.kind {
-            // User sent a message
-            UpdateKind::Message(message) => {
-                if let MessageKind::Text { ref data, .. } = message.kind {
-                    let message_tokens: Vec<&str> = data.split(" ").collect();
-                    let command_type = message_tokens[0];
-                    let command = message_tokens[1..].to_vec();
-                    let id = message.chat.id().into();
-                    if let MessageChat::Private(user) = message.chat {
-                        let command = get_command(command_type, id, user.username, command);
-                        store.dispatch(command);
-                        let msg = get_new_ui(store.state());
-                        ts.api.spawn(msg);
-                    }
-                }
-            }
-            // User clicked a button
-            UpdateKind::CallbackQuery(query) => {
-                let message_tokens: Vec<&str> = query.data.split(" ").collect();
-                let command_type = message_tokens[0];
-                let command = message_tokens[1..].to_vec();
-                let id = query.message.chat.id().into();
-                if let MessageChat::Private(user) = query.message.chat {
-                    let command = get_command(command_type, id, user.username, command);
-                    store.dispatch(command);
-                    let msg = get_new_ui(store.state());
-                    ts.api.spawn(msg);
-                }
-            }
-            _ => {}
-        }
+        let action = get_action(update);
+        store.dispatch(action);
+        let msg = get_new_ui(store.state());
+        ts.api.spawn(msg);
         Ok(())
     });
 
     core.run(future).unwrap();
+}
+
+/// Returns the Action for each Telegram Update (message, callback, inline query)
+///
+fn get_action(update: Update) -> Action {
+    match update.kind {
+        // User sent a message
+        UpdateKind::Message(message) => {
+            let id = message.chat.id().into();
+            if let MessageKind::Text { ref data, .. } = message.kind {
+                let message_tokens: Vec<&str> = data.split(" ").collect();
+                let command_type = message_tokens[0];
+                let command = message_tokens[1..].to_vec();
+                if let MessageChat::Private(user) = message.chat {
+                    return get_command(command_type, id, user.username, command);
+                }
+            }
+
+            Action::Unknown(id)
+        }
+        // User clicked a button
+        UpdateKind::CallbackQuery(query) => {
+            let id = query.message.chat.id().into();
+            let message_tokens: Vec<&str> = query.data.split(" ").collect();
+            let command_type = message_tokens[0];
+            let command = message_tokens[1..].to_vec();
+            if let MessageChat::Private(user) = query.message.chat {
+                return get_command(command_type, id, user.username, command);
+            }
+            Action::Unknown(id)
+        }
+        // User sent an inline (@grinbot123 send...) query
+        UpdateKind::InlineQuery(query) => {
+            let id = query.from.id.into();
+            Action::ModeNotSupported(id)
+        }
+
+        _ => Action::Unknown(-1),
+    }
 }
 
 #[cfg(test)]
@@ -147,25 +159,25 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_home_command() {
+    fn home_command() {
         let command = get_command("/home", 99, Some("user123".into()), vec![]);
         assert_eq!(command, Action::Home(99));
     }
 
     #[test]
-    fn test_unknown_command() {
+    fn unknown_command() {
         let command = get_command("/abcd", 100, Some("user123".into()), vec![]);
         assert_eq!(command, Action::Unknown(100));
     }
 
     #[test]
-    fn test_no_username_command() {
+    fn no_username_command() {
         let command = get_command("/send", 101, None, vec![]);
         assert_eq!(command, Action::NoUsername(101));
     }
 
     #[test]
-    fn test_send_command() {
+    fn send_command() {
         use url::Url;
 
         let command = get_command(
@@ -182,14 +194,14 @@ mod tests {
     }
 
     #[test]
-    fn test_no_recipient_send_command() {
+    fn no_recipient_send_command() {
         use controller::types::CommandParseError::*;
         let command = get_command("/send", 103, Some("user123".into()), vec!["0.01"]);
         assert_eq!(command, Action::CommandError(103, CommandTooShortError));
     }
 
     #[test]
-    fn test_no_amount_send_command() {
+    fn no_amount_send_command() {
         use controller::types::CommandParseError::*;
         let command = get_command(
             "/send",
@@ -200,4 +212,89 @@ mod tests {
         assert_eq!(command, Action::CommandError(103, CommandTooShortError));
     }
 
+    #[test]
+    fn raw_inline_query_update() {
+        let json = r#"{
+                  "update_id": 999999,
+                  "inline_query": {
+                    "id": "9999",
+                    "from": {
+                       "id":99,
+                       "username":"firstlast",
+                       "first_name":"firstname",
+                       "last_name":"lastname",
+                       "type": "private",
+                       "is_bot": false,
+                       "language_code":"en"
+                    },
+                    "query": "/send",
+                    "offset": ""
+                  }
+                }
+            "#;
+        let update = serde_json::from_str::<Update>(json).unwrap();
+        assert_eq!(Action::ModeNotSupported(99), get_action(update));
+    }
+
+    #[test]
+    fn raw_callback_query_update() {
+        let json = r#"{
+                "update_id": 999999,
+                "message": {
+                  "message_id": 9999,
+                  "from": {
+                    "id": 99,
+                    "is_bot": false,
+                    "first_name": "firstname",
+                    "username": "firstlast",
+                    "language_code": "en"
+                  },
+                  "chat": {
+                    "id": 99,
+                    "first_name": "firstname",
+                    "username": "firstlast",
+                    "type": "private"
+                  },
+                  "date": 1568300000,
+                  "text": "/home",
+                  "entities": [
+                    {
+                      "offset": 0,
+                      "length": 5,
+                      "type": "bot_command"
+                    }]
+                }
+            }"#;
+        let update = serde_json::from_str::<Update>(json).unwrap();
+        assert_eq!(Action::Home(99), get_action(update));
+    }
+
+    #[test]
+    fn raw_message_update() {
+        let json = r#"{
+            "update_id":999999,
+              "message":{
+                "date": 1568300000,
+                "chat":{
+                   "id":99,
+                   "username":"firstlast",
+                   "first_name":"firstname",
+                   "last_name":"lastname",
+                   "type": "private"
+                },
+                "message_id":9999,
+                "from":{
+                   "id":99,
+                   "username":"firstlast",
+                   "first_name":"firstname",
+                   "last_name":"lastname",
+                   "type": "private",
+                   "is_bot": false
+                },
+                "text":"/back"
+              }
+            }"#;
+        let update = serde_json::from_str::<Update>(json).unwrap();
+        assert_eq!(Action::Back(99), get_action(update));
+    }
 }
