@@ -1,4 +1,3 @@
-extern crate grin_wallet_api;
 extern crate grin_wallet_libwallet;
 extern crate reqwest;
 
