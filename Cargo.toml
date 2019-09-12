@@ -9,13 +9,10 @@ telegram-bot = "0.6.3"
 tokio = "0.1.11"
 tokio-core = "0.1"
 futures = "0.1"
-
-grin_wallet_libwallet = { path = "../grin-wallet/libwallet", version = "2.1.0-beta.1" }
-grin_wallet_api = { path = "../grin-wallet/api", version = "2.1.0-beta.1" }
 serde_json = "1.0.40"
 serde = "1.0.99"
 reqwest = "0.9.1"
 redux-rs = "0.1.0"
 askama = "0.8.0"
 url = "2.1.0"
-
+grin_wallet_libwallet = { git = "https://github.com/mimblewimble/grin-wallet", tag = "v2.0.0" }
