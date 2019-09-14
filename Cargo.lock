@@ -816,6 +816,8 @@ dependencies = [
  "askama 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "futures 0.1.28 (registry+https://github.com/rust-lang/crates.io-index)",
  "grin_wallet_libwallet 2.0.0 (git+https://github.com/mimblewimble/grin-wallet?tag=v2.0.0)",
+ "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)",
+ "log4rs 0.8.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "redux-rs 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "reqwest 0.9.5 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.99 (registry+https://github.com/rust-lang/crates.io-index)",
