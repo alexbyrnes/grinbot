@@ -81,16 +81,17 @@ pub fn send(
 /// Generates new wallet and returns the seed.
 pub fn new_wallet(
     username: &str,
-    base_dir: &str,
+    wallet_path: &str,
     password: &str,
 ) -> Result<String, Box<dyn Error>> {
+
     let your_recovery_phrase = "Your recovery phrase is:";
 
-    let wallet_dir = format!("{}/{}", base_dir, username);
+    let wallet_dir = format!("{}/{}", wallet_path, username);
     let path = Path::new(&wallet_dir);
     if !Path::exists(path) {
         Command::new("mkdir")
-            .current_dir(base_dir)
+            .current_dir(wallet_path)
             .arg(username)
             .output()?;
 
