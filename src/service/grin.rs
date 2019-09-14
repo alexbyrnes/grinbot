@@ -1,6 +1,3 @@
-extern crate grin_wallet_libwallet;
-extern crate reqwest;
-
 use askama::Template;
 use reqwest::Client;
 
@@ -84,7 +81,6 @@ pub fn new_wallet(
     wallet_path: &str,
     password: &str,
 ) -> Result<String, Box<dyn Error>> {
-
     let your_recovery_phrase = "Your recovery phrase is:";
 
     let wallet_dir = format!("{}/{}", wallet_path, username);

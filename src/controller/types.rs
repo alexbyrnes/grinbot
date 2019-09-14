@@ -1,16 +1,18 @@
+use log::Level;
 use url::Url;
 
 use crate::service::types::GrinAmount;
 use crate::types::Context;
 
 /// Application state: which screen the user is on, previous screen, message to return.
-#[derive(Default, Clone)]
+#[derive(Default, Clone, Debug)]
 pub struct State {
     pub screen: Screen,
     pub prev_screen: Screen,
     pub id: Option<i64>,
     pub message: Option<String>,
     pub context: Context,
+    pub error_level: Option<Level>,
 }
 
 /// Screens (the user's current view/state shown via Telegram message & keyboard).

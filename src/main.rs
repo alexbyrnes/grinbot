@@ -11,13 +11,17 @@ extern crate telegram_bot;
 extern crate tokio_core;
 extern crate yaml_rust;
 
+#[macro_use]
+extern crate log;
+extern crate log4rs;
+
 use futures::Stream;
-use redux_rs::Store;
+use redux_rs::{Store, Subscription};
+use std::fs::File;
+use std::io::prelude::*;
 use telegram_bot::*;
 use tokio_core::reactor::Core;
 use yaml_rust::YamlLoader;
-use std::fs::File;
-use std::io::prelude::*;
 
 use controller::dispatch::screen_reducer;
 use controller::types::{Action, Screen, SendCommand, State};
@@ -92,18 +96,33 @@ fn get_new_ui(state: &State) -> SendMessage {
 }
 
 fn main() {
-
     // Load config file
-    let mut f = File::open(&"config.yml")
-        .expect("config.yml must exist in current directory.");
+    let mut f = File::open(&"config.yml").expect("config.yml must exist in current directory.");
     let mut s = String::new();
     f.read_to_string(&mut s).unwrap();
     let yml = YamlLoader::load_from_str(&s).unwrap();
     let config = &yml[0];
 
+    // Get logging config
+    let log_config = config["log_config"]
+        .as_str()
+        .expect("log_config required in config.yml");
+
     // Get bot key
-    let key = config["telegram_bot_key"].as_str()
+    let key = config["telegram_bot_key"]
+        .as_str()
         .expect("telegram_bot_key required in config.yml");
+
+    // Logging
+    log4rs::init_file(log_config, Default::default()).unwrap();
+    info!("Starting GrinBot...");
+
+    let logging_listener: Subscription<State> = |state: &State| {
+        // Log actions with a log level
+        if let Some(level) = state.error_level {
+            log!(level, "{:#?}", state);
+        }
+    };
 
     // Initialize tokio and telegram service
     let mut core = Core::new().unwrap();
@@ -111,10 +130,14 @@ fn main() {
 
     // Initialize reqwest and app context
     let http_client = reqwest::Client::new();
-    let wallet_dir = config["wallet_dir"].as_str()
+    let wallet_dir = config["wallet_dir"]
+        .as_str()
         .expect("wallet_dir required in config.yml")
         .to_string();
-    let context = Context { http_client, wallet_dir };
+    let context = Context {
+        http_client,
+        wallet_dir,
+    };
 
     // Initial state of the bot
     let initial_state = State {
@@ -123,10 +146,14 @@ fn main() {
         screen: Screen::Home,
         message: None,
         context: context,
+        error_level: None,
     };
 
     // The state management store
     let mut store = Store::new(screen_reducer, initial_state);
+
+    // Log actions
+    store.subscribe(logging_listener);
 
     // Main app loop. Ingest telegram Updates (chats),
     // dispatch associated action, get reply interface
