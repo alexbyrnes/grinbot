@@ -17,8 +17,7 @@ pub fn screen_reducer(state: &State, action: &Action) -> State {
             context: s.context,
         },
         Action::Create(id, username) => {
-            let base_dir = "/tmp/wallets";
-            let message = match grin::new_wallet(&username, base_dir, "") {
+            let message = match grin::new_wallet(&username, &s.context.wallet_dir, "") {
                 Ok(seed) => SeedTemplate { seed: &seed }.render().unwrap(),
                 Err(e) => format!("Error: {}", e),
             };
