@@ -15,6 +15,18 @@ impl fmt::Display for WalletExistsError {
     }
 }
 
+/// Api secret (.api_secret file) does not exist.
+#[derive(Debug)]
+pub struct ApiSecretMissingError;
+
+impl Error for ApiSecretMissingError {}
+
+impl fmt::Display for ApiSecretMissingError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, ".api_secret file does not exist in wallet directory")
+    }
+}
+
 /// Error creating wallet.
 #[derive(Debug)]
 pub struct CreateWalletError;
@@ -38,8 +50,9 @@ pub struct RpcRequest {
 
 /// Imitates a library wrapper used by the Grin wallet.
 #[derive(Serialize, Deserialize, Debug)]
-pub struct MaybeReply {
-    pub Ok: Value,
+pub enum MaybeReply {
+    Ok(Value),
+    Err(Value),
 }
 
 /// RPC response from the Grin wallet owner API.

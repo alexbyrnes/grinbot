@@ -113,10 +113,23 @@ fn main() {
         .as_str()
         .expect("telegram_bot_key required in config.yml");
 
+    // Get wallet directory, either current or
+    // future after create command.
+    let wallet_dir = config["wallet_dir"]
+        .as_str()
+        .expect("wallet_dir required in config.yml")
+        .to_string();
+
+    // Get wallet password. The password used
+    // when creating a wallet and with grin-wallet commands.
+    let wallet_password = config["wallet_password"]
+        .as_str()
+        .expect("wallet_password required in config.yml")
+        .to_string();
+
     // Logging
     log4rs::init_file(log_config, Default::default()).unwrap();
     info!("Starting GrinBot...");
-
     let logging_listener: Subscription<State> = |state: &State| {
         // Log actions with a log level
         if let Some(level) = state.error_level {
@@ -130,13 +143,10 @@ fn main() {
 
     // Initialize reqwest and app context
     let http_client = reqwest::Client::new();
-    let wallet_dir = config["wallet_dir"]
-        .as_str()
-        .expect("wallet_dir required in config.yml")
-        .to_string();
     let context = Context {
         http_client,
         wallet_dir,
+        wallet_password,
     };
 
     // Initial state of the bot
