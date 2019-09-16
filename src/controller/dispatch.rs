@@ -19,7 +19,7 @@ pub fn screen_reducer(state: &State, action: &Action) -> State {
         },
         Action::Create(id, username) => {
             let (message, error_level) =
-                match grin::new_wallet(&username, &s.context.wallet_dir, "") {
+                match grin::new_wallet(&s.context.wallet_dir, &s.context.wallet_password) {
                     Ok(seed) => (SeedTemplate { seed: &seed }.render().unwrap(), None),
                     Err(e) => (format!("Error: {}", e), Some(Level::Error)),
                 };
@@ -34,9 +34,9 @@ pub fn screen_reducer(state: &State, action: &Action) -> State {
         }
         Action::Send(id, username, amount, destination) => {
             let (message, error_level) = match grin::send(
-                username,
                 *amount,
                 destination.as_str(),
+                &s.context.wallet_dir,
                 &s.context.http_client,
             ) {
                 Ok(msg) => (format!("<b>Success:</b>\n{}", msg), None),
