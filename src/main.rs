@@ -48,6 +48,7 @@ fn get_command(command_type: &str, id: i64, command: Vec<&str>) -> Action {
             }
             Err(error) => Action::CommandError(id, error),
         },
+        "/balance" => Action::Balance(id),
         "/help" => Action::Help(id),
         "/back" => Action::Back(id),
         _ => Action::Unknown(id),
@@ -88,15 +89,13 @@ fn get_new_ui(state: &State) -> SendMessage {
             format!("Moving to {:?}", state.screen)
         },
     );
-
     let keyboard = reply_markup!(
         reply_keyboard,
         selective,
         one_time,
         resize,
-        ["/create", "/send"],
-        ["/help", "/home"],
-        ["/back"]
+        ["/balance", "/help"],
+        ["/back", "/home"]
     );
 
     msg.parse_mode(ParseMode::Html);
@@ -250,6 +249,12 @@ mod tests {
     fn home_command() {
         let command = get_command("/home", 99, vec![]);
         assert_eq!(command, Action::Home(99));
+    }
+
+    #[test]
+    fn balance_command() {
+        let command = get_command("/balance", 99, vec![]);
+        assert_eq!(command, Action::Balance(99));
     }
 
     #[test]

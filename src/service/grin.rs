@@ -1,5 +1,6 @@
 use askama::Template;
 use reqwest::Client;
+use serde_json::json;
 
 use std::error::Error;
 use std::fs::File;
@@ -7,13 +8,13 @@ use std::io::prelude::*;
 use std::path::Path;
 use std::process::{Child, Command};
 
-use grin_wallet_libwallet::{InitTxArgs, InitTxSendArgs};
+use grin_wallet_libwallet::{InitTxArgs, InitTxSendArgs, WalletInfo};
 
 use crate::service::types::{
     ApiSecretMissingError, Args, CreateWalletError, GrinAmount, MaybeReply, NanoGrinAmount,
     RpcRequest, RpcResponse, WalletExistsError,
 };
-use crate::template::templates::SendSuccessTemplate;
+use crate::template::templates::{InfoSuccessTemplate, SendSuccessTemplate};
 
 /// Sends Grin
 pub fn send(
@@ -79,6 +80,37 @@ pub fn send(
             }
             .render()
             .unwrap();
+            Ok(message)
+        }
+        MaybeReply::Err(e) => Ok(serde_json::to_string_pretty(&e)?),
+    }
+}
+
+/// Gets balance
+pub fn balance(wallet_dir: &str, client: &Client) -> Result<String, Box<dyn Error>> {
+    let owner_endpoint = "http://127.0.0.1:3420/v2/owner";
+    let ita = json!([true, 10]);
+
+    let rpc_request = RpcRequest {
+        id: "1".to_owned(),
+        jsonrpc: "2.0".to_owned(),
+        method: "retrieve_summary_info".to_owned(),
+        params: Some(ita),
+    };
+
+    let api_secret = get_api_secret(wallet_dir)?;
+    let mut raw_response = client
+        .post(owner_endpoint)
+        .basic_auth("grin", Some(api_secret))
+        .json(&rpc_request)
+        .send()?;
+
+    let response: RpcResponse = raw_response.json()?;
+    match response.result {
+        MaybeReply::Ok(rpc) => {
+            let info: WalletInfo = serde_json::from_value(rpc[1].clone()).unwrap();
+
+            let message = InfoSuccessTemplate { info }.render().unwrap();
             Ok(message)
         }
         MaybeReply::Err(e) => Ok(serde_json::to_string_pretty(&e)?),
