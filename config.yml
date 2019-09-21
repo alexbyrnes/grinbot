@@ -2,3 +2,4 @@ telegram_bot_key: <your bot key>
 wallet_dir: <directory where wallet will be created>
 wallet_password: change_me
 log_config: logging.yml
+username: your_telegram_username
