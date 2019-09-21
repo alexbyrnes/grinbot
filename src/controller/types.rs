@@ -34,10 +34,11 @@ impl Default for Screen {
 #[derive(Debug, PartialEq)]
 pub enum Action {
     Home(i64),
-    Create(i64, String),
-    Send(i64, String, GrinAmount, Url),
+    Create(i64),
+    Send(i64, GrinAmount, Url),
     Help(i64),
     NoUsername(i64),
+    WrongUsername(i64),
     ModeNotSupported(i64),
     Back(i64),
     CommandError(i64, CommandParseError),

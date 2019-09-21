@@ -17,7 +17,7 @@ pub fn screen_reducer(state: &State, action: &Action) -> State {
             context: s.context,
             error_level: None,
         },
-        Action::Create(id, username) => {
+        Action::Create(id) => {
             let (message, error_level) =
                 match grin::new_wallet(&s.context.wallet_dir, &s.context.wallet_password) {
                     Ok(seed) => (SeedTemplate { seed: &seed }.render().unwrap(), None),
@@ -32,7 +32,7 @@ pub fn screen_reducer(state: &State, action: &Action) -> State {
                 ..s
             }
         }
-        Action::Send(id, username, amount, destination) => {
+        Action::Send(id, amount, destination) => {
             let (message, error_level) = match grin::send(
                 *amount,
                 destination.as_str(),
@@ -64,6 +64,15 @@ pub fn screen_reducer(state: &State, action: &Action) -> State {
             error_level: Some(Level::Warn),
             ..s
         },
+        Action::WrongUsername(id) => State {
+            id: Some(*id),
+            message: Some(
+                "Your username does not match the username in the GrinBot config.".into(),
+            ),
+            error_level: Some(Level::Warn),
+            ..s
+        },
+
         Action::ModeNotSupported(id) => State {
             id: Some(*id),
             message: Some(
