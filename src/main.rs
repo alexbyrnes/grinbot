@@ -21,7 +21,7 @@ use std::fs::File;
 use std::io::prelude::*;
 use telegram_bot::*;
 use tokio_core::reactor::Core;
-use yaml_rust::YamlLoader;
+use yaml_rust::{Yaml, YamlLoader};
 
 use controller::dispatch::screen_reducer;
 use controller::types::{Action, LoggableState, Screen, SendCommand, State};
@@ -103,6 +103,13 @@ fn get_new_ui(state: &State) -> SendMessage {
     msg
 }
 
+fn load_config_field(config: &Yaml, field: &str) -> String {
+    config[field]
+        .as_str()
+        .expect(&format!("{} required in config.yml", field))
+        .to_string()
+}
+
 fn main() {
     // Load config file
     let mut f = File::open(&"config.yml").expect("config.yml must exist in current directory.");
@@ -112,35 +119,25 @@ fn main() {
     let config = &yml[0];
 
     // Get logging config
-    let log_config = config["log_config"]
-        .as_str()
-        .expect("log_config required in config.yml");
+    let log_config = load_config_field(config, "log_config");
 
     // Get bot key
-    let key = config["telegram_bot_key"]
-        .as_str()
-        .expect("telegram_bot_key required in config.yml");
+    let key = load_config_field(config, "telegram_bot_key");
 
     // Get wallet directory, either current or
     // future after create command.
-    let wallet_dir = config["wallet_dir"]
-        .as_str()
-        .expect("wallet_dir required in config.yml")
-        .to_string();
+    let wallet_dir = load_config_field(config, "wallet_dir");
+
+    // Get owner API endpoint
+    let owner_endpoint = load_config_field(config, "owner_endpoint");
 
     // Get wallet password. The password used
     // when creating a wallet and with grin-wallet commands.
-    let wallet_password = config["wallet_password"]
-        .as_str()
-        .expect("wallet_password required in config.yml")
-        .to_string();
+    let wallet_password = load_config_field(config, "wallet_password");
 
     // Get username. This is the only user who may use
     // the wallet.
-    let config_username = config["username"]
-        .as_str()
-        .expect("username required in config.yml")
-        .to_string();
+    let config_username = load_config_field(config, "username");
 
     // Logging
     log4rs::init_file(log_config, Default::default()).unwrap();
@@ -161,6 +158,7 @@ fn main() {
     let context = Context {
         http_client,
         wallet_dir,
+        owner_endpoint,
         wallet_password,
     };
 
