@@ -3,3 +3,4 @@ wallet_dir: <directory where wallet will be created>
 wallet_password: change_me
 log_config: logging.yml
 username: your_telegram_username
+owner_endpoint: http://127.0.0.1:3420/v2/owner

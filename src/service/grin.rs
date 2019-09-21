@@ -21,10 +21,9 @@ pub fn send(
     amount: GrinAmount,
     dest: &str,
     wallet_dir: &str,
+    owner_endpoint: &str,
     client: &Client,
 ) -> Result<String, Box<dyn Error>> {
-    let owner_endpoint = "http://127.0.0.1:3420/v2/owner";
-
     let ita = InitTxArgs {
         src_acct_name: Some("default".into()),
         amount: amount.as_nano_grin() as u64, // Conversion occurs here
@@ -87,8 +86,11 @@ pub fn send(
 }
 
 /// Gets balance
-pub fn balance(wallet_dir: &str, client: &Client) -> Result<String, Box<dyn Error>> {
-    let owner_endpoint = "http://127.0.0.1:3420/v2/owner";
+pub fn balance(
+    wallet_dir: &str,
+    owner_endpoint: &str,
+    client: &Client,
+) -> Result<String, Box<dyn Error>> {
     let ita = json!([true, 10]);
 
     let rpc_request = RpcRequest {
