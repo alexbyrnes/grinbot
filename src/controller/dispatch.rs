@@ -51,6 +51,22 @@ pub fn screen_reducer(state: &State, action: &Action) -> State {
                 ..s
             }
         }
+        Action::Balance(id) => {
+            let (message, error_level) =
+                match grin::balance(&s.context.wallet_dir, &s.context.http_client) {
+                    Ok(msg) => (format!("<b>Success:</b>\n{}", msg), None),
+                    Err(e) => (format!("Error: {}", e), Some(Level::Info)),
+                };
+
+            State {
+                screen: Screen::Balance,
+                id: Some(*id),
+                message: Some(message),
+                error_level,
+                ..s
+            }
+        }
+
         Action::Help(id) => State {
             screen: Screen::Help,
             id: Some(*id),

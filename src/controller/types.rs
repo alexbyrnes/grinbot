@@ -41,6 +41,7 @@ pub enum Screen {
     Home,
     Create,
     Send,
+    Balance,
     Help,
 }
 
@@ -56,6 +57,7 @@ pub enum Action {
     Home(i64),
     Create(i64),
     Send(i64, GrinAmount, Url),
+    Balance(i64),
     Help(i64),
     NoUsername(i64),
     WrongUsername(i64),
