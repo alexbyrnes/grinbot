@@ -15,6 +15,26 @@ pub struct State {
     pub error_level: Option<Level>,
 }
 
+/// State that can be logged.
+#[derive(Debug, Clone)]
+pub struct LoggableState {
+    pub screen: Screen,
+    pub prev_screen: Screen,
+    pub id: Option<i64>,
+    pub message: Option<String>,
+}
+
+impl LoggableState {
+    pub fn new(state: State) -> Self {
+        LoggableState {
+            screen: state.screen,
+            prev_screen: state.prev_screen,
+            id: state.id,
+            message: state.message,
+        }
+    }
+}
+
 /// Screens (the user's current view/state shown via Telegram message & keyboard).
 #[derive(Debug, Clone)]
 pub enum Screen {
