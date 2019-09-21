@@ -24,7 +24,7 @@ use tokio_core::reactor::Core;
 use yaml_rust::YamlLoader;
 
 use controller::dispatch::screen_reducer;
-use controller::types::{Action, Screen, SendCommand, State};
+use controller::types::{Action, LoggableState, Screen, SendCommand, State};
 use service::telegram::TelegramService;
 use service::types::GrinAmount;
 use types::Context;
@@ -149,7 +149,7 @@ fn main() {
     let logging_listener: Subscription<State> = |state: &State| {
         // Log actions with a log level
         if let Some(level) = state.error_level {
-            log!(level, "{:#?}", state);
+            log!(level, "{:#?}", LoggableState::new(state.clone()));
         }
     };
 
