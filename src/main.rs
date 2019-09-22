@@ -86,7 +86,7 @@ fn get_new_ui(state: &State) -> SendMessage {
         if let Some(m) = &state.message {
             format!("{}", m)
         } else {
-            format!("Moving to {:?}", state.screen)
+            "".to_string()
         },
     );
     let keyboard = reply_markup!(
@@ -94,8 +94,7 @@ fn get_new_ui(state: &State) -> SendMessage {
         selective,
         one_time,
         resize,
-        ["/balance", "/help"],
-        ["/back", "/home"]
+        ["/balance", "/help"]
     );
 
     msg.parse_mode(ParseMode::Html);
