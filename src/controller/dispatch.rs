@@ -2,7 +2,7 @@ use askama::Template;
 use log::Level;
 
 use crate::service::grin;
-use crate::template::templates::SeedTemplate;
+use crate::template::templates::{HelpTemplate, SeedTemplate};
 use crate::{Action, Screen, State};
 
 /// Main UI reducer: Returns a new State from an Action.
@@ -71,13 +71,16 @@ pub fn screen_reducer(state: &State, action: &Action) -> State {
             }
         }
 
-        Action::Help(id) => State {
-            screen: Screen::Help,
-            id: Some(*id),
-            message: None,
-            error_level: None,
-            ..s
-        },
+        Action::Help(id) => {
+            let message = Some(HelpTemplate {}.render().unwrap());
+            State {
+                screen: Screen::Help,
+                id: Some(*id),
+                message,
+                error_level: None,
+                ..s
+            }
+        }
         Action::NoUsername(id) => State {
             id: Some(*id),
             message: Some("You must have a username to use GrinBot.".into()),

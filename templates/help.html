@@ -1,0 +1,26 @@
+Commands start with a forward slash (/). Some of the commands are available on the dedicated keyboard, and some require more information from you. To issue a command to GrinBot, type one of the following:
+  <pre>/create</pre>
+  <i>Create a Grin wallet in the directory specified in your config.yml.</i>
+  <pre>/send 0.001 http://some-recipient123.org</pre>
+  <i>Send Grin to the specified address.</i>
+  <pre>/balance</pre>
+  <i>Get the current balance for your wallet.</i>
+  <pre>/help</pre>
+  <i>Show this help text.</i>
+
+
+<b>Technical Information</b>
+
+GrinBot requires a running Grin Wallet Owner API. You can specify the location of your owner API in config.yml.
+
+You may specify an existing wallet directory in config.yml.
+
+Errors, and most user actions are logged on your machine. See logging.yml.
+
+<b>Security Information</b>
+
+Telegram bot traffic is <i>not</i> end-to-end encrypted. However, your wallet password, API key, and seed file are stored on your machine and not transmitted.
+
+The chat text including the recipient's address or IP and amount <i>are</i> transmitted to Telegram's servers. If this is sensitive information you do not want in a Telegram chat, you should not use this version of GrinBot.
+
+GrinBot does not respond to "inline" messages used in group chats.
