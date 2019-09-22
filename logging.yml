@@ -6,7 +6,7 @@ appenders:
       pattern: "{d} {h({l})} {t} - {m}{n}"
   main:
     kind: file
-    path: "/tmp/log/grinbot.log"
+    path: "/tmp/grinbot.log"
 root:
   level: info
   appenders:
