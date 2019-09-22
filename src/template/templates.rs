@@ -25,3 +25,8 @@ pub struct InfoSuccessTemplate {
 pub struct SeedTemplate<'a> {
     pub seed: &'a str,
 }
+
+/// Help text
+#[derive(Template)]
+#[template(path = "help.html")]
+pub struct HelpTemplate {}
