@@ -5,6 +5,7 @@ mod template;
 /// Application-level types.
 mod types;
 
+extern crate clap;
 extern crate futures;
 extern crate reqwest;
 extern crate telegram_bot;
@@ -15,6 +16,7 @@ extern crate yaml_rust;
 extern crate log;
 extern crate log4rs;
 
+use clap::{App, Arg};
 use futures::Stream;
 use redux_rs::{Store, Subscription};
 use std::fs::File;
@@ -50,6 +52,7 @@ fn get_command(command_type: &str, id: i64, command: Vec<&str>) -> Action {
         },
         "/balance" => Action::Balance(id),
         "/help" => Action::Help(id),
+        "/start" => Action::Help(id),
         "/back" => Action::Back(id),
         _ => Action::Unknown(id),
     }
@@ -110,6 +113,19 @@ fn load_config_field(config: &Yaml, field: &str) -> String {
 }
 
 fn main() {
+    // Parse optional chat message from command line
+    let matches = App::new("GrinBot")
+        .arg(
+            Arg::with_name("command")
+                .short("c")
+                .long("commmand")
+                .value_name("COMMAND")
+                .help("Runs a chat command locally without Telegram")
+                .takes_value(true),
+        )
+        .get_matches();
+    let cli_command = matches.value_of("command");
+
     // Load config file
     let mut f = File::open(&"config.yml").expect("config.yml must exist in current directory.");
     let mut s = String::new();
@@ -188,7 +204,23 @@ fn main() {
         Ok(())
     });
 
-    core.run(future).unwrap();
+    // Run the command line update, if any.
+    if let Some(command) = cli_command {
+        let (command_type, parameters) = tokenize_command(command);
+        let action = get_command(command_type, 0, parameters);
+        store.dispatch(action);
+        let message = &store.state().message;
+        println!("{}", message.clone().unwrap());
+    } else {
+        // Start main loop
+        core.run(future).unwrap();
+    }
+}
+
+/// Splits command into type and parameters
+fn tokenize_command(raw_command: &str) -> (&str, Vec<&str>) {
+    let message_tokens: Vec<&str> = raw_command.split(" ").collect();
+    (message_tokens[0], message_tokens[1..].to_vec())
 }
 
 /// Returns the Action for each Telegram Update (message, callback, inline query)
@@ -198,14 +230,13 @@ fn get_action(update: Update, config_username: &String) -> Action {
         UpdateKind::Message(message) => {
             let id = message.chat.id().into();
             if let MessageKind::Text { ref data, .. } = message.kind {
-                let message_tokens: Vec<&str> = data.split(" ").collect();
-                let command_type = message_tokens[0];
-                let command = message_tokens[1..].to_vec();
+                let (command_type, parameters) = tokenize_command(data);
+
                 if let MessageChat::Private(user) = message.chat {
                     // Check for username before looking at command
                     match get_username_action(id, &user.username, config_username) {
                         Some(action) => return action,
-                        None => return get_command(command_type, id, command),
+                        None => return get_command(command_type, id, parameters),
                     };
                 }
             }
@@ -215,15 +246,12 @@ fn get_action(update: Update, config_username: &String) -> Action {
         // User clicked a button
         UpdateKind::CallbackQuery(query) => {
             let id = query.message.chat.id().into();
-            let message_tokens: Vec<&str> = query.data.split(" ").collect();
-            let command_type = message_tokens[0];
-            let command = message_tokens[1..].to_vec();
-
+            let (command_type, parameters) = tokenize_command(&query.data);
             if let MessageChat::Private(user) = query.message.chat {
                 // Check for username before looking at command
                 match get_username_action(id, &user.username, &config_username) {
                     Some(action) => return action,
-                    None => return get_command(command_type, id, command),
+                    None => return get_command(command_type, id, parameters),
                 };
             }
             Action::Unknown(id)
