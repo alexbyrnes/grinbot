@@ -19,3 +19,4 @@ grin_wallet_libwallet = { git = "https://github.com/mimblewimble/grin-wallet", t
 yaml-rust = "0.4.3"
 log = "0.4.8"
 log4rs = "0.8.3"
+clap = { version = "2.31", features = ["yaml"] }
