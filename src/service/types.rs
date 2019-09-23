@@ -3,6 +3,8 @@ use std::{error::Error, fmt};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
+use grin_wallet_libwallet::WalletInfo;
+
 /// Wallet directory already exists.
 #[derive(Debug)]
 pub struct WalletExistsError;
@@ -88,6 +90,7 @@ impl GrinAmount {
         GrinAmount { amount }
     }
 
+    #[allow(dead_code)]
     pub fn as_grin(&self) -> f64 {
         self.amount
     }
@@ -108,11 +111,54 @@ impl NanoGrinAmount {
         NanoGrinAmount { amount }
     }
 
+    #[allow(dead_code)]
     pub fn as_nano_grin(&self) -> f64 {
         self.amount
     }
 
     pub fn as_grin(&self) -> f64 {
         self.amount / 1_000_000_000_f64
+    }
+}
+
+// WalletInfo with whole Grin amounts
+#[derive(Debug, Copy, Clone)]
+pub struct WalletInfoGrin {
+    pub last_confirmed_height: u64,
+    pub minimum_confirmations: u64,
+    pub total: f64,
+    pub amount_awaiting_finalization: f64,
+    pub amount_awaiting_confirmation: f64,
+    pub amount_immature: f64,
+    pub amount_currently_spendable: f64,
+    pub amount_locked: f64,
+}
+
+impl WalletInfoGrin {
+    pub fn new(wi: WalletInfo) -> Self {
+        let WalletInfo {
+            last_confirmed_height,
+            minimum_confirmations,
+            total,
+            amount_awaiting_finalization,
+            amount_awaiting_confirmation,
+            amount_immature,
+            amount_currently_spendable,
+            amount_locked,
+        } = wi;
+
+        WalletInfoGrin {
+            last_confirmed_height,
+            minimum_confirmations,
+            total: NanoGrinAmount::new(total as f64).as_grin(),
+            amount_awaiting_finalization: NanoGrinAmount::new(amount_awaiting_finalization as f64)
+                .as_grin(),
+            amount_awaiting_confirmation: NanoGrinAmount::new(amount_awaiting_confirmation as f64)
+                .as_grin(),
+            amount_immature: NanoGrinAmount::new(amount_immature as f64).as_grin(),
+            amount_currently_spendable: NanoGrinAmount::new(amount_currently_spendable as f64)
+                .as_grin(),
+            amount_locked: NanoGrinAmount::new(amount_locked as f64).as_grin(),
+        }
     }
 }

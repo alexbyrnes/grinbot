@@ -10,6 +10,7 @@ use std::process::{Child, Command};
 
 use grin_wallet_libwallet::{InitTxArgs, InitTxSendArgs, WalletInfo};
 
+use crate::service::types::WalletInfoGrin;
 use crate::service::types::{
     ApiSecretMissingError, Args, CreateWalletError, GrinAmount, MaybeReply, NanoGrinAmount,
     RpcRequest, RpcResponse, WalletExistsError,
@@ -110,7 +111,8 @@ pub fn balance(
     let response: RpcResponse = raw_response.json()?;
     match response.result {
         MaybeReply::Ok(rpc) => {
-            let info: WalletInfo = serde_json::from_value(rpc[1].clone()).unwrap();
+            let nano_info: WalletInfo = serde_json::from_value(rpc[1].clone()).unwrap();
+            let info = WalletInfoGrin::new(nano_info);
 
             let message = InfoSuccessTemplate { info }.render().unwrap();
             Ok(message)
@@ -159,6 +161,8 @@ pub fn get_api_secret(wallet_dir: &str) -> Result<String, Box<dyn Error>> {
     }
 }
 
+#[allow(dead_code)]
+/// Unused start owner API function. For future development.
 pub fn start_owner_api(wallet_dir: &str, password: &str) -> Result<Child, std::io::Error> {
     Command::new("grin-wallet")
         .current_dir(wallet_dir)

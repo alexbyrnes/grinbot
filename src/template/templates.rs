@@ -1,6 +1,5 @@
+use crate::service::types::WalletInfoGrin;
 use askama::Template;
-
-use grin_wallet_libwallet::WalletInfo;
 
 /// Message with post-send information.
 #[derive(Template)]
@@ -16,7 +15,7 @@ pub struct SendSuccessTemplate<'a> {
 #[derive(Template)]
 #[template(path = "info-success.html")]
 pub struct InfoSuccessTemplate {
-    pub info: WalletInfo,
+    pub info: WalletInfoGrin,
 }
 
 /// Message returning user's seed after wallet creation.
