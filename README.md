@@ -19,6 +19,12 @@ docker run -it grinbot
 
 ```shell
 git clone --branch v0.0.1 https://github.com/alexbyrnes/GrinBot.git
+cargo install --path GrinBot --locked
+```
+
+### From source &mdash; no install
+```shell
+git clone --branch v0.0.1 https://github.com/alexbyrnes/GrinBot.git
 cd GrinBot
 cargo run
 ```
@@ -33,6 +39,13 @@ cargo test
 ```shell
 cargo doc --no-deps --document-private-items --open
 ```
+## Running and interacting without a Telegram account
+
+All commands can be executed locally without a Telegram account.
+
+```shell
+grinbot -c "/help"
+```
 
 ## Running and interacting with your Telegram account
 
@@ -44,7 +57,7 @@ cargo doc --no-deps --document-private-items --open
 
 Once your bot instance is [created](https://core.telegram.org/bots#6-botfather) you should receive a message with your token. Enter the token and your username in [config.yml](config.yml).
 
-You can now start GrinBot (`cargo run`) and interact with it. Go to the link provided by Telegram on the device or desktop where Telegram is installed. The link starts with `https://t.me/`. You should get a prompt to open a chat with your bot.
+Start the bot by running `grinbot` in a directory with config.yml and logging.yml, or `cargo run` in the root of the repository. Go to the link provided by Telegram on the device or desktop where Telegram is installed. (The link starts with `https://t.me/`.) You should get a prompt to open a chat with your bot.
 
 Type and send `/help` for a list of commands.
 
@@ -65,6 +78,7 @@ Telegram bot traffic is _not_ end-to-end encrypted, however Telegram claims [GDP
 * Command aliases
 * Confirmation dialog
 * Usage help screens
+* `grinbot init` for default config files
 
 ## Contributing
 
