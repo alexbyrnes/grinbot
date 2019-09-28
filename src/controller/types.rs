@@ -3,6 +3,7 @@ use url::Url;
 
 use crate::service::types::GrinAmount;
 use crate::types::Context;
+use std::fmt;
 
 /// Application state: which screen the user is on, previous screen, message to return.
 #[derive(Default, Clone, Debug)]
@@ -75,11 +76,16 @@ pub struct SendCommand {
 }
 
 impl SendCommand {
+    pub fn usage() -> String {
+        "Wrong number of arguments.\n\nUsage: <pre>/send 0.001 http://some-recipient123.org</pre>"
+            .to_string()
+    }
+
     /// Convert string tokens of user command parameters to valid Url and float.
     pub fn parse(command: Vec<&str>) -> Result<Self, CommandParseError> {
         use CommandParseError::*;
         if command.len() != 2 {
-            return Err(CommandTooShortError);
+            return Err(WrongNumberOfArgsError(SendCommand::usage()));
         } else {
             let url = match Url::parse(command[1]) {
                 Ok(url) => url,
@@ -100,7 +106,16 @@ impl SendCommand {
 /// Errors associated with parsing commands
 #[derive(Debug, PartialEq)]
 pub enum CommandParseError {
-    CommandTooShortError,
+    WrongNumberOfArgsError(String),
     UrlParseError,
     AmountParseError,
+}
+
+impl fmt::Display for CommandParseError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            CommandParseError::WrongNumberOfArgsError(msg) => write!(f, "{}", msg),
+            error => write!(f, "{:?}", error),
+        }
+    }
 }

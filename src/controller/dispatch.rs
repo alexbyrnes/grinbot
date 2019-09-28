@@ -113,7 +113,7 @@ pub fn screen_reducer(state: &State, action: &Action) -> State {
         },
         Action::CommandError(id, error) => State {
             id: Some(*id),
-            message: Some(format!("Error: {:?}", error)),
+            message: Some(format!("Error: {}", error)),
             error_level: Some(Level::Error),
             ..s
         },
