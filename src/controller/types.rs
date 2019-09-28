@@ -79,7 +79,7 @@ impl SendCommand {
     pub fn parse(command: Vec<&str>) -> Result<Self, CommandParseError> {
         use CommandParseError::*;
         if command.len() != 2 {
-            return Err(CommandTooShortError);
+            return Err(WrongNumberOfParametersError);
         } else {
             let url = match Url::parse(command[1]) {
                 Ok(url) => url,
@@ -100,7 +100,7 @@ impl SendCommand {
 /// Errors associated with parsing commands
 #[derive(Debug, PartialEq)]
 pub enum CommandParseError {
-    CommandTooShortError,
+    WrongNumberOfParametersError,
     UrlParseError,
     AmountParseError,
 }
