@@ -214,6 +214,7 @@ fn main() {
     } else {
         // Start main loop
         core.run(future).unwrap();
+        info!("Running...");
     }
 }
 
