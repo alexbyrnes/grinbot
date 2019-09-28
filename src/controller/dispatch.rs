@@ -41,13 +41,7 @@ pub fn screen_reducer(state: &State, action: &Action) -> State {
                 &s.context.http_client,
             ) {
                 Ok(msg) => (format!("<b>Success:</b>\n{}", msg), None),
-                Err(e) => (
-                    format!(
-                        "Error: {}\nUsage: <pre>/send 0.001 http://some-recipient123.org</pre>",
-                        e
-                    ),
-                    Some(Level::Info),
-                ),
+                Err(e) => (format!("Error: {}", e), Some(Level::Info)),
             };
 
             State {
@@ -119,7 +113,7 @@ pub fn screen_reducer(state: &State, action: &Action) -> State {
         },
         Action::CommandError(id, error) => State {
             id: Some(*id),
-            message: Some(format!("Error: {:?}", error)),
+            message: Some(format!("Error: {}", error)),
             error_level: Some(Level::Error),
             ..s
         },
