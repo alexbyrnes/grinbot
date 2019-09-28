@@ -315,14 +315,14 @@ mod tests {
     fn no_recipient_send_command() {
         use controller::types::CommandParseError::*;
         let command = get_command("/send", 103, vec!["0.01"]);
-        assert_eq!(command, Action::CommandError(103, CommandTooShortError));
+        assert_eq!(command, Action::CommandError(103, WrongNumberOfArgsError));
     }
 
     #[test]
     fn no_amount_send_command() {
         use controller::types::CommandParseError::*;
         let command = get_command("/send", 103, vec!["https://recipient123.org"]);
-        assert_eq!(command, Action::CommandError(103, CommandTooShortError));
+        assert_eq!(command, Action::CommandError(103, WrongNumberOfArgsError));
     }
 
     #[test]
