@@ -2,7 +2,6 @@
 
 GrinBot is a self-hosted Telegram bot wallet for the [Grin](https://grin-tech.org/) cryptocurrency. You can run GrinBot on your own hardware, and interact with it through Telegram messages.
 
-![Desktop](screenshots/desktop.png)
 ![Mobile](screenshots/mobile.png)
 
 # Getting started
