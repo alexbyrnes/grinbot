@@ -83,14 +83,14 @@ pub fn screen_reducer(state: &State, action: &Action) -> State {
         }
         Action::NoUsername(id) => State {
             id: Some(*id),
-            message: Some("You must have a username to use GrinBot.".into()),
+            message: Some("You must have a username to use Grin Bot.".into()),
             error_level: Some(Level::Warn),
             ..s
         },
         Action::WrongUsername(id) => State {
             id: Some(*id),
             message: Some(
-                "Your username does not match the username in the GrinBot config.".into(),
+                "Your username does not match the username in the Grin Bot config.".into(),
             ),
             error_level: Some(Level::Warn),
             ..s

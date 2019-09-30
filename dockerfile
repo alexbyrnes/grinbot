@@ -19,12 +19,12 @@ RUN git clone --branch v2.0.0 https://github.com/mimblewimble/grin-wallet.git
 RUN cargo install --path grin-wallet
 
 # make bot, wallet, and node directories
-RUN mkdir GrinBot
+RUN mkdir grinbot
 RUN mkdir mywallet
 RUN mkdir node
 
 # copy repo into container
-COPY . GrinBot
+COPY . grinbot
 
 # initialize grin wallet
 WORKDIR /mywallet
@@ -36,7 +36,7 @@ RUN grin server config && \
     sed -i -e 's/run_tui = true/run_tui = false/' grin-server.toml
 
 # initialize bot
-WORKDIR /GrinBot
+WORKDIR /grinbot
 RUN chmod u+x scripts/docker_entrypoint.sh
 RUN cargo build
 

@@ -1,6 +1,6 @@
-# GrinBot
+# Grin Bot
 
-GrinBot is a self-hosted Telegram bot wallet for the [Grin](https://grin-tech.org/) cryptocurrency. You can run GrinBot on your own hardware, and interact with it through Telegram messages.
+Grin Bot is a self-hosted Telegram bot wallet for the [Grin](https://grin-tech.org/) cryptocurrency. You can run Grin Bot on your own hardware, and interact with it through Telegram messages.
 
 ![Mobile](screenshots/mobile.png)
 
@@ -11,8 +11,8 @@ GrinBot is a self-hosted Telegram bot wallet for the [Grin](https://grin-tech.or
 ### Docker
 
 ```shell
-git clone --branch v0.0.1 https://github.com/alexbyrnes/GrinBot.git
-cd GrinBot
+git clone --branch v0.0.1 https://github.com/alexbyrnes/grinbot.git
+cd grinbot
 docker build -t grinbot .
 docker run -it grinbot
 ```
@@ -20,14 +20,14 @@ docker run -it grinbot
 ### From source
 
 ```shell
-git clone --branch v0.0.1 https://github.com/alexbyrnes/GrinBot.git
-cargo install --path GrinBot --locked
+git clone --branch v0.0.1 https://github.com/alexbyrnes/grinbot.git
+cargo install --path grinbot --locked
 ```
 
 ### From source &mdash; no install
 ```shell
-git clone --branch v0.0.1 https://github.com/alexbyrnes/GrinBot.git
-cd GrinBot
+git clone --branch v0.0.1 https://github.com/alexbyrnes/grinbot.git
+cd grinbot
 cargo run
 ```
 
@@ -67,11 +67,11 @@ Note: The best source of troubleshooting information is the [dockerfile](dockerf
 
 ## Architecture and Security
 
-GrinBot uses the Telegram bot long polling interface. This means there's no need for an externally-accessible IP or port. GrinBot will connect to Telegram and pull new messages (called [Updates](https://core.telegram.org/bots/api#getting-updates)) from an endpoint specifically for your bot instance using your token. To get an idea of how this works, you can visit `https://api.telegram.org/bot<your api token>/getUpdates` to manually consume messages you have sent your bot. This is the address GrinBot polls.
+Grin Bot uses the Telegram bot long polling interface. This means there's no need for an externally-accessible IP or port. Grin Bot will connect to Telegram and pull new messages (called [Updates](https://core.telegram.org/bots/api#getting-updates)) from an endpoint specifically for your bot instance using your token. To get an idea of how this works, you can visit `https://api.telegram.org/bot<your api token>/getUpdates` to manually consume messages you have sent your bot. This is the address Grin Bot polls.
 
 The only information that is sent to Telegram is the contents of the chat itself &mdash; the commands you send to your bot and the messages it sends back. The commands and replies do not include passwords or tokens.
 
-Telegram bot traffic is _not_ end-to-end encrypted, however Telegram claims [GDPR compliance](https://telegram.org/faq#q-what-about-gdpr) and the ability to [delete messages](https://telegram.org/faq#q-can-i-delete-my-messages). If you are using GrinBot for purposes that require stronger security guarantees than these, you should not use this version.
+Telegram bot traffic is _not_ end-to-end encrypted, however Telegram claims [GDPR compliance](https://telegram.org/faq#q-what-about-gdpr) and the ability to [delete messages](https://telegram.org/faq#q-can-i-delete-my-messages). If you are using Grin Bot for purposes that require stronger security guarantees than these, you should not use this version.
 
 
 ## Roadmap
