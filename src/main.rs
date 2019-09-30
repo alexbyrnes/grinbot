@@ -114,7 +114,7 @@ fn load_config_field(config: &Yaml, field: &str) -> String {
 
 fn main() {
     // Parse optional chat message from command line
-    let matches = App::new("GrinBot")
+    let matches = App::new("Grin Bot")
         .arg(
             Arg::with_name("command")
                 .short("c")
@@ -156,7 +156,7 @@ fn main() {
 
     // Logging
     log4rs::init_file(log_config, Default::default()).unwrap();
-    info!("Starting GrinBot...");
+    info!("Starting Grin Bot...");
     let logging_listener: Subscription<State> = |state: &State| {
         // Log actions with a log level
         if let Some(level) = state.error_level {

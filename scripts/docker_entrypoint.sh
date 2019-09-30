@@ -4,5 +4,5 @@ cd /node
 grin server run &
 cd /mywallet
 grin-wallet -p pass owner_api &
-cd /GrinBot
+cd /grinbot
 cargo run
