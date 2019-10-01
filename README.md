@@ -48,6 +48,12 @@ All commands can be executed locally without a Telegram account.
 ```shell
 grinbot -c "/help"
 ```
+## Starting the Grin Wallet Owner API
+
+In a [grin-wallet](https://github.com/mimblewimble/grin-wallet) directory:
+```shell
+grin-wallet owner_api
+```
 
 ## Running and interacting with your Telegram account
 
@@ -64,6 +70,12 @@ Start the bot by running `grinbot` in a directory with config.yml and logging.ym
 Type and send `/help` for a list of commands.
 
 Note: The best source of troubleshooting information is the [dockerfile](dockerfile) where a complete bot with Grin node and wallet is set up from scratch.
+
+```shell
+docker build -t grinbot .
+docker run -it grinbot
+```
+
 
 ## Architecture and Security
 
