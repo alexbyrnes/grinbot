@@ -1,6 +1,6 @@
 use futures::stream::Stream;
 use grinbot_core::controller::dispatch::{
-    get_action, get_command, get_new_ui, screen_reducer, tokenize_command,
+    get_action, get_command, get_new_ui, parse_update, screen_reducer, tokenize_command,
 };
 use grinbot_core::controller::types::{LoggableState, Screen, State};
 use grinbot_core::types::Context;
@@ -17,7 +17,7 @@ impl TelegramService {
 
     pub fn start(
         self,
-        username: String,
+        config_user: String,
         wallet_dir: String,
         owner_endpoint: String,
         wallet_password: String,
@@ -64,10 +64,11 @@ impl TelegramService {
         let api = Api::configure(key).build(core.handle()).unwrap();
 
         let future = api.stream().for_each(|update| {
-            let action = get_action(update, &username);
+            let (id, from_user, message) = parse_update(update);
+            let action = get_action(id, from_user, message, &config_user);
             store.dispatch(action);
-            let msg = get_new_ui(store.state());
-            api.spawn(msg);
+            let reply = get_new_ui(store.state());
+            api.spawn(reply);
             Ok(())
         });
 
@@ -83,5 +84,111 @@ impl TelegramService {
             core.run(future).unwrap();
             info!("Running...");
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use grinbot_core::controller::dispatch::get_action;
+    use grinbot_core::controller::types::Action;
+    use telegram_bot::Update;
+
+    #[test]
+    fn raw_inline_query_update() {
+        let json = r#"{
+                  "update_id": 999999,
+                  "inline_query": {
+                    "id": "9999",
+                    "from": {
+                       "id":99,
+                       "username":"user123",
+                       "first_name":"firstname",
+                       "last_name":"lastname",
+                       "type": "private",
+                       "is_bot": false,
+                       "language_code":"en"
+                    },
+                    "query": "/send",
+                    "offset": ""
+                  }
+                }
+            "#;
+        let update = serde_json::from_str::<Update>(json).unwrap();
+        let (id, from_user, message) = parse_update(update);
+        assert_eq!(
+            Action::ModeNotSupported(99),
+            get_action(id, from_user, message, &"user123".to_string())
+        );
+    }
+
+    #[test]
+    fn raw_callback_query_update() {
+        let json = r#"{
+                "update_id": 999999,
+                "message": {
+                  "message_id": 9999,
+                  "from": {
+                    "id": 99,
+                    "is_bot": false,
+                    "first_name": "firstname",
+                    "username": "user123",
+                    "language_code": "en"
+                  },
+                  "chat": {
+                    "id": 99,
+                    "first_name": "firstname",
+                    "username": "user123",
+                    "type": "private"
+                  },
+                  "date": 1568300000,
+                  "text": "/home",
+                  "entities": [
+                    {
+                      "offset": 0,
+                      "length": 5,
+                      "type": "bot_command"
+                    }]
+                }
+            }"#;
+        let update = serde_json::from_str::<Update>(json).unwrap();
+        let (id, from_user, message) = parse_update(update);
+        assert_eq!(
+            Action::Home(99),
+            get_action(id, from_user, message, &"user123".to_string())
+        );
+    }
+
+    #[test]
+    fn raw_message_update() {
+        let json = r#"{
+            "update_id":999999,
+              "message":{
+                "date": 1568300000,
+                "chat":{
+                   "id":99,
+                   "username":"user123",
+                   "first_name":"firstname",
+                   "last_name":"lastname",
+                   "type": "private"
+                },
+                "message_id":9999,
+                "from":{
+                   "id":99,
+                   "username":"firstlast",
+                   "first_name":"firstname",
+                   "last_name":"lastname",
+                   "type": "private",
+                   "is_bot": false
+                },
+                "text":"/back"
+              }
+            }"#;
+        let update = serde_json::from_str::<Update>(json).unwrap();
+        let (id, from_user, message) = parse_update(update);
+        assert_eq!(
+            Action::Back(99),
+            get_action(id, from_user, message, &"user123".to_string())
+        );
     }
 }

@@ -39,7 +39,7 @@ cargo test
 
 ### Rust docs
 ```shell
-cargo doc --no-deps --document-private-items --open
+cargo doc --no-deps --document-private-items --open --all
 ```
 ## Running and interacting without a Telegram account
 

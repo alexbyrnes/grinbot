@@ -136,46 +136,52 @@ pub fn tokenize_command(raw_command: &str) -> (&str, Vec<&str>) {
     (message_tokens[0], message_tokens[1..].to_vec())
 }
 
+pub fn get_action(
+    id: i64,
+    from_user: Option<String>,
+    message: Option<String>,
+    config_user: &str,
+) -> Action {
+    if let Some(msg) = message {
+        let (command_type, parameters) = tokenize_command(&msg);
+        // Check for username before looking at command
+        match get_username_action(id, from_user, config_user) {
+            Some(action) => action,
+            None => get_command(command_type, id, parameters),
+        }
+    } else {
+        Action::Unknown(id)
+    }
+}
+
 /// Returns the Action for each Telegram Update (message, callback, inline query)
-pub fn get_action(update: Update, config_username: &String) -> Action {
+pub fn parse_update(update: Update) -> (i64, Option<String>, Option<String>) {
     match update.kind {
         // User sent a message
-        UpdateKind::Message(message) => {
-            let id = message.chat.id().into();
-            if let MessageKind::Text { ref data, .. } = message.kind {
-                let (command_type, parameters) = tokenize_command(data);
-
-                if let MessageChat::Private(user) = message.chat {
-                    // Check for username before looking at command
-                    match get_username_action(id, &user.username, config_username) {
-                        Some(action) => return action,
-                        None => return get_command(command_type, id, parameters),
-                    };
+        UpdateKind::Message(telegram_message) => {
+            let id = telegram_message.chat.id().into();
+            if let MessageKind::Text { data, .. } = telegram_message.kind {
+                if let MessageChat::Private(from_user) = telegram_message.chat {
+                    return (id, from_user.username, Some(data));
                 }
             }
-
-            Action::Unknown(id)
+            (id, None, None)
         }
         // User clicked a button
         UpdateKind::CallbackQuery(query) => {
             let id = query.message.chat.id().into();
-            let (command_type, parameters) = tokenize_command(&query.data);
-            if let MessageChat::Private(user) = query.message.chat {
-                // Check for username before looking at command
-                match get_username_action(id, &user.username, &config_username) {
-                    Some(action) => return action,
-                    None => return get_command(command_type, id, parameters),
-                };
+            if let MessageChat::Private(from_user) = query.message.chat {
+                return (id, from_user.username, Some(query.data));
             }
-            Action::Unknown(id)
+            (id, None, None)
         }
         // User sent an inline (@grinbot123 send...) query
         UpdateKind::InlineQuery(query) => {
             let id = query.from.id.into();
-            Action::ModeNotSupported(id)
+            (id, query.from.username, Some("/unsupported".to_string()))
         }
 
-        _ => Action::Unknown(-1),
+        _ => (-1, None, None),
     }
 }
 
@@ -203,20 +209,17 @@ pub fn get_command(command_type: &str, id: i64, command: Vec<&str>) -> Action {
         "/help" => Action::Help(id),
         "/start" => Action::Help(id),
         "/back" => Action::Back(id),
+        "/unsupported" => Action::ModeNotSupported(id),
         _ => Action::Unknown(id),
     }
 }
 
 /// Get actions associated with usernames
-pub fn get_username_action(
-    id: i64,
-    username: &Option<String>,
-    config_username: &String,
-) -> Option<Action> {
+pub fn get_username_action(id: i64, username: Option<String>, config_user: &str) -> Option<Action> {
     match username {
         None => Some(Action::NoUsername(id)),
         Some(current_username) => {
-            if current_username != config_username {
+            if current_username != config_user {
                 Some(Action::WrongUsername(id))
             } else {
                 None
@@ -226,13 +229,6 @@ pub fn get_username_action(
 }
 
 /// Returns the next Telegram message from the current state.
-///
-/// # Example
-///
-/// ```ignore
-/// use grinbot_core::controller::dispatch::{get_new_ui};
-/// let msg = get_new_ui(store.state());
-/// ```
 pub fn get_new_ui(state: &State) -> SendMessage {
     let mut msg = SendMessage::new(
         ChatId::new(state.id.unwrap()),
@@ -281,14 +277,13 @@ mod tests {
 
     #[test]
     fn no_username() {
-        let command = get_username_action(101, &None, &"user123".to_string());
+        let command = get_username_action(101, None, &"user123".to_string());
         assert_eq!(command, Some(Action::NoUsername(101)));
     }
 
     #[test]
     fn wrong_username() {
-        let command =
-            get_username_action(101, &Some("user321".to_string()), &"user123".to_string());
+        let command = get_username_action(101, Some("user321".to_string()), &"user123".to_string());
         assert_eq!(command, Some(Action::WrongUsername(101)));
     }
 
@@ -342,9 +337,10 @@ mod tests {
                 }
             "#;
         let update = serde_json::from_str::<Update>(json).unwrap();
+        let (id, from_user, message) = parse_update(update);
         assert_eq!(
             Action::ModeNotSupported(99),
-            get_action(update, &"user123".to_string())
+            get_action(id, from_user, message, &"user123".to_string())
         );
     }
 
@@ -378,7 +374,11 @@ mod tests {
                 }
             }"#;
         let update = serde_json::from_str::<Update>(json).unwrap();
-        assert_eq!(Action::Home(99), get_action(update, &"user123".into()));
+        let (id, from_user, message) = parse_update(update);
+        assert_eq!(
+            Action::Home(99),
+            get_action(id, from_user, message, &"user123".to_string())
+        );
     }
 
     #[test]
@@ -407,6 +407,10 @@ mod tests {
               }
             }"#;
         let update = serde_json::from_str::<Update>(json).unwrap();
-        assert_eq!(Action::Back(99), get_action(update, &"user123".into()));
+        let (id, from_user, message) = parse_update(update);
+        assert_eq!(
+            Action::Back(99),
+            get_action(id, from_user, message, &"user123".to_string())
+        );
     }
 }
