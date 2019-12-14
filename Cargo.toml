@@ -13,19 +13,12 @@ categories = [ "cryptography::cryptocurrencies" ]
 readme = "README.md"
 edition = "2018"
 
+[workspace]
+members = ["core", "telegram-service"]
+
 [dependencies]
-telegram-bot = "0.6.3"
-tokio = "0.1.11"
-tokio-core = "0.1"
-futures = "0.1"
-serde_json = "1.0.40"
-serde = "1.0.99"
-reqwest = "0.9.1"
-redux-rs = "0.1.0"
-askama = "0.8.0"
-url = "2.1.0"
-grin_wallet_libwallet = { git = "https://github.com/mimblewimble/grin-wallet", tag = "v2.0.0" }
-yaml-rust = "0.4.3"
-log = "0.4.8"
-log4rs = "0.8.3"
+telegram_service = { path = "./telegram-service/", version= "0.0.1"}
+grinbot_core = { path = "./core/", version= "0.0.1"}
 clap = { version = "2.31", features = ["yaml"] }
+yaml-rust = "0.4.3"
+
