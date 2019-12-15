@@ -11,4 +11,3 @@ impl fmt::Display for KeybaseMessageParseError {
         write!(f, "Error parsing Keybase message.")
     }
 }
-

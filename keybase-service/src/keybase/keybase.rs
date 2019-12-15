@@ -10,9 +10,9 @@ use redux_rs::{Store, Subscription};
 use futures::executor::block_on;
 use futures::prelude::*;
 use futures::stream::StreamExt;
-use keybase_bot_api::chat::{Notification, ChannelParams};
+use keybase_bot_api::chat::{ChannelParams, Notification};
 
-use keybase_bot_api::{Bot, Chat, ApiError};
+use keybase_bot_api::{ApiError, Bot, Chat};
 use keybase_protocol::chat1::{api, MsgSummary};
 
 use std::error::Error;
@@ -24,19 +24,23 @@ impl KeybaseService {
         KeybaseService {}
     }
 
-    fn parse_update(notification: Result<Notification, ApiError>) -> Result<(i64, Option<String>, Option<String>), Box<dyn Error>> {
+    fn parse_update(
+        notification: Result<Notification, ApiError>,
+    ) -> Result<(i64, Option<String>, Option<String>), Box<dyn Error>> {
         match notification.unwrap() {
-            Notification::Chat(api::MsgNotification{msg, ..}) => {
+            Notification::Chat(api::MsgNotification { msg, .. }) => {
                 let summary = msg.ok_or(KeybaseMessageParseError)?;
                 let id = summary.id.ok_or(KeybaseMessageParseError)?;
                 let from_user = summary.sender.ok_or(KeybaseMessageParseError)?.username;
                 let message = summary
-                    .content.ok_or(KeybaseMessageParseError)?
-                    .text.ok_or(KeybaseMessageParseError)?
+                    .content
+                    .ok_or(KeybaseMessageParseError)?
+                    .text
+                    .ok_or(KeybaseMessageParseError)?
                     .body;
                 Ok((id as i64, from_user, message))
-            },
-            _ => Err(Box::new(KeybaseMessageParseError))
+            }
+            _ => Err(Box::new(KeybaseMessageParseError)),
         }
     }
 
@@ -89,7 +93,7 @@ impl KeybaseService {
 
         let notifications = bot.listen().unwrap();
         let future = notifications.for_each(|notification| {
-             match Self::parse_update(notification) {
+            match Self::parse_update(notification) {
                 Ok((id, from_user, message)) => {
                     let action = get_action(id, &from_user, message, &config_user);
                     store.dispatch(action);
@@ -105,9 +109,8 @@ impl KeybaseService {
                         println!("Failed to send message: {:?}", e);
                     }
                     */
-
-                },
-                Err(e) => println!("{}", e)
+                }
+                Err(e) => println!("{}", e),
             }
             future::ready(())
         });

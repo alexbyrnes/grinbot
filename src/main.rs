@@ -77,7 +77,7 @@ fn main() {
         cli_command,
         key,
     );
-/*
+    /*
     // Initialize and start keybase service
     let ks: KeybaseService = KeybaseService::new();
     ks.start(
