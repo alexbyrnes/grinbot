@@ -14,10 +14,11 @@ readme = "README.md"
 edition = "2018"
 
 [workspace]
-members = ["core", "telegram-service"]
+members = ["core", "telegram-service", "keybase-service"]
 
 [dependencies]
 telegram_service = { path = "./telegram-service/", version= "0.0.1"}
+keybase_service = { path = "./keybase-service/", version= "0.0.1"}
 grinbot_core = { path = "./core/", version= "0.0.1"}
 clap = { version = "2.31", features = ["yaml"] }
 yaml-rust = "0.4.3"

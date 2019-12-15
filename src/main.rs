@@ -4,6 +4,7 @@ use yaml_rust::{Yaml, YamlLoader};
 use std::fs::File;
 use std::io::prelude::*;
 
+use keybase_service::keybase::KeybaseService;
 use telegram_service::telegram::TelegramService;
 
 fn load_config_field(config: &Yaml, field: &str) -> String {
@@ -55,15 +56,38 @@ fn main() {
     // the wallet.
     let config_username = load_config_field(config, "username");
 
-    // Initialize and start telegram service
-    let ts: TelegramService = TelegramService::new();
-    ts.start(
-        config_username,
+    /////
+    // Get keybase paperkey
+    let keybase_key = load_config_field(config, "keybase_paperkey");
+
+    // Get keybase "from" (mobile) username
+    let keybase_from = load_config_field(config, "keybase_from_user");
+
+    // Get keybase "to" (desktop) username
+    let keybase_config_username = load_config_field(config, "keybase_to_user");
+
+    /*
+        // Initialize and start telegram service
+        let ts: TelegramService = TelegramService::new();
+        ts.start(
+            config_username,
+            wallet_dir,
+            owner_endpoint,
+            wallet_password,
+            log_config,
+            cli_command,
+            key,
+        );
+    */
+    // Initialize and start keybase service
+    let ks: KeybaseService = KeybaseService::new();
+    ks.start(
+        keybase_config_username,
         wallet_dir,
         owner_endpoint,
         wallet_password,
         log_config,
         cli_command,
-        key,
+        keybase_key,
     );
 }

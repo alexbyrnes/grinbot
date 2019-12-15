@@ -1,18 +1,43 @@
-use futures::stream::Stream;
 use grinbot_core::controller::dispatch::{
-    get_action, get_command, get_new_ui, parse_update, screen_reducer, tokenize_command,
+    get_action, get_command, get_new_ui, screen_reducer, tokenize_command,
 };
 use grinbot_core::controller::types::{LoggableState, Screen, State};
 use grinbot_core::types::Context;
+
+use crate::keybase::types::KeybaseMessageParseError;
 use redux_rs::{Store, Subscription};
-use telegram_bot::Api;
-use tokio_core::reactor::Core;
 
-pub struct TelegramService {}
+use futures::executor::block_on;
+use futures::prelude::*;
+use futures::stream::StreamExt;
+use keybase_bot_api::chat::{Notification, ChannelParams};
 
-impl TelegramService {
+use keybase_bot_api::{Bot, Chat, ApiError};
+use keybase_protocol::chat1::{api, MsgSummary};
+
+use std::error::Error;
+
+pub struct KeybaseService {}
+
+impl KeybaseService {
     pub fn new() -> Self {
-        TelegramService {}
+        KeybaseService {}
+    }
+
+    fn parse_update(notification: Result<Notification, ApiError>) -> Result<(i64, Option<String>, Option<String>), Box<dyn Error>> {
+        match notification.unwrap() {
+            Notification::Chat(api::MsgNotification{msg, ..}) => {
+                let summary = msg.ok_or(KeybaseMessageParseError)?;
+                let id = summary.id.ok_or(KeybaseMessageParseError)?;
+                let from_user = summary.sender.ok_or(KeybaseMessageParseError)?.username;
+                let message = summary
+                    .content.ok_or(KeybaseMessageParseError)?
+                    .text.ok_or(KeybaseMessageParseError)?
+                    .body;
+                Ok((id as i64, from_user, message))
+            },
+            _ => Err(Box::new(KeybaseMessageParseError))
+        }
     }
 
     pub fn start(
@@ -60,16 +85,31 @@ impl TelegramService {
         // Log actions
         store.subscribe(logging_listener);
 
-        let mut core = Core::new().unwrap();
-        let api = Api::configure(key).build(core.handle()).unwrap();
+        let mut bot = Bot::new(&config_user, &key).unwrap();
 
-        let future = api.stream().for_each(|update| {
-            let (id, from_user, message) = parse_update(update);
-            let action = get_action(id, &from_user, message, &config_user);
-            store.dispatch(action);
-            let reply = get_new_ui(store.state());
-            api.spawn(reply);
-            Ok(())
+        let notifications = bot.listen().unwrap();
+        let future = notifications.for_each(|notification| {
+             match Self::parse_update(notification) {
+                Ok((id, from_user, message)) => {
+                    let action = get_action(id, &from_user, message, &config_user);
+                    store.dispatch(action);
+                    let reply = get_new_ui(store.state());
+                    let formatted_reply = format!("{:?}", reply);
+
+                    let channel = ChannelParams {
+                        name: format!("{},{}", bot.username, from_user.unwrap()),
+                        ..Default::default()
+                    };
+                    println!("{:?}", formatted_reply);
+                    /*if let Err(e) = bot.send_msg(&channel, &formatted_reply) {
+                        println!("Failed to send message: {:?}", e);
+                    }
+                    */
+
+                },
+                Err(e) => println!("{}", e)
+            }
+            future::ready(())
         });
 
         // Run the command line update, if any.
@@ -81,12 +121,12 @@ impl TelegramService {
             println!("{}", message.clone().unwrap());
         } else {
             // Start main loop
-            core.run(future).unwrap();
+            block_on(future);
             info!("Running...");
         }
     }
 }
-
+/*
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -192,3 +232,4 @@ mod tests {
         );
     }
 }
+*/

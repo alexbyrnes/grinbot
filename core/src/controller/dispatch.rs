@@ -138,7 +138,7 @@ pub fn tokenize_command(raw_command: &str) -> (&str, Vec<&str>) {
 
 pub fn get_action(
     id: i64,
-    from_user: Option<String>,
+    from_user: &Option<String>,
     message: Option<String>,
     config_user: &str,
 ) -> Action {
@@ -215,7 +215,7 @@ pub fn get_command(command_type: &str, id: i64, command: Vec<&str>) -> Action {
 }
 
 /// Get actions associated with usernames
-pub fn get_username_action(id: i64, username: Option<String>, config_user: &str) -> Option<Action> {
+pub fn get_username_action(id: i64, username: &Option<String>, config_user: &str) -> Option<Action> {
     match username {
         None => Some(Action::NoUsername(id)),
         Some(current_username) => {
