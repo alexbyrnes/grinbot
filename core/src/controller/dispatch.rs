@@ -9,6 +9,7 @@ use crate::template::templates::{HelpTemplate, SeedTemplate};
 use crate::service::types::GrinAmount;
 use telegram_bot::*;
 
+
 /// Main UI reducer: Returns a new State from an Action.
 pub fn screen_reducer(state: &State, action: &Action) -> State {
     let s = state.clone();
@@ -246,13 +247,13 @@ mod tests {
 
     #[test]
     fn no_username() {
-        let command = get_username_action(101, None, &"user123".to_string());
+        let command = get_username_action(101, &None, &"user123".to_string());
         assert_eq!(command, Some(Action::NoUsername(101)));
     }
 
     #[test]
     fn wrong_username() {
-        let command = get_username_action(101, Some("user321".to_string()), &"user123".to_string());
+        let command = get_username_action(101, &Some("user321".to_string()), &"user123".to_string());
         assert_eq!(command, Some(Action::WrongUsername(101)));
     }
 

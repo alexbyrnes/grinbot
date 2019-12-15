@@ -146,10 +146,10 @@ mod tests {
                 }
             "#;
         let update = serde_json::from_str::<Update>(json).unwrap();
-        let (id, from_user, message) = parse_update(update);
+        let (id, from_user, message) = TelegramService::parse_update(update);
         assert_eq!(
             Action::ModeNotSupported(99),
-            get_action(id, from_user, message, &"user123".to_string())
+            get_action(id, &from_user, message, &"user123".to_string())
         );
     }
 
@@ -183,10 +183,10 @@ mod tests {
                 }
             }"#;
         let update = serde_json::from_str::<Update>(json).unwrap();
-        let (id, from_user, message) = parse_update(update);
+        let (id, from_user, message) = TelegramService::parse_update(update);
         assert_eq!(
             Action::Home(99),
-            get_action(id, from_user, message, &"user123".to_string())
+            get_action(id, &from_user, message, &"user123".to_string())
         );
     }
 
@@ -216,10 +216,10 @@ mod tests {
               }
             }"#;
         let update = serde_json::from_str::<Update>(json).unwrap();
-        let (id, from_user, message) = parse_update(update);
+        let (id, from_user, message) = TelegramService::parse_update(update);
         assert_eq!(
             Action::Back(99),
-            get_action(id, from_user, message, &"user123".to_string())
+            get_action(id, &from_user, message, &"user123".to_string())
         );
     }
 }
