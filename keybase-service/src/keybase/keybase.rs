@@ -1,5 +1,5 @@
 use grinbot_core::controller::dispatch::{
-    get_action, get_command, get_new_ui, screen_reducer, tokenize_command,
+    get_action, get_command, screen_reducer, tokenize_command,
 };
 use grinbot_core::controller::types::{LoggableState, Screen, State};
 use grinbot_core::types::Context;
@@ -42,6 +42,17 @@ impl KeybaseService {
             }
             _ => Err(Box::new(KeybaseMessageParseError)),
         }
+    }
+
+    /// Returns the next message from the current state.
+    pub fn get_keybase_ui(state: &State) -> (i64, String) {
+        let id = state.id.unwrap();
+        let message = if let Some(m) = &state.message {
+            format!("{}", m)
+        } else {
+            "".to_string()
+        };
+        (id, message)
     }
 
     pub fn start(
@@ -93,24 +104,22 @@ impl KeybaseService {
 
         let notifications = bot.listen().unwrap();
         let future = notifications.for_each(|notification| {
-            match Self::parse_update(notification) {
-                Ok((id, from_user, message)) => {
-                    let action = get_action(id, &from_user, message, &config_user);
-                    store.dispatch(action);
-                    let reply = get_new_ui(store.state());
-                    let formatted_reply = format!("{:?}", reply);
-
-                    let channel = ChannelParams {
-                        name: format!("{},{}", bot.username, from_user.unwrap()),
-                        ..Default::default()
-                    };
-                    println!("{:?}", formatted_reply);
-                    /*if let Err(e) = bot.send_msg(&channel, &formatted_reply) {
-                        println!("Failed to send message: {:?}", e);
-                    }
-                    */
-                }
-                Err(e) => println!("{}", e),
+            // Unpack Keybase update (command from user).
+            let (id, from_user, message) = Self::parse_update(notification).unwrap();
+            // Get the action associated with the command.
+            let action = get_action(id, &from_user, message, &config_user);
+            // Dispatch the action.
+            store.dispatch(action);
+            // Use the updated state to return an updated UI (reply message).
+            let (id, message) = KeybaseService::get_keybase_ui(store.state());
+            // Create channel parameters.
+            let channel = ChannelParams {
+                name: format!("{},{}", bot.username, from_user.unwrap()),
+                ..Default::default()
+            };
+            // Send reply to user.
+            if let Err(e) = bot.send_msg(&channel, &message) {
+                println!("Failed to send message: {:?}", e);
             }
             future::ready(())
         });

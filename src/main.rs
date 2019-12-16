@@ -67,6 +67,7 @@ fn main() {
     let keybase_config_username = load_config_field(config, "keybase_to_user");
 
     // Initialize and start telegram service
+    /*
     let ts: TelegramService = TelegramService::new();
     ts.start(
         config_username,
@@ -77,7 +78,7 @@ fn main() {
         cli_command,
         key,
     );
-    /*
+    */
     // Initialize and start keybase service
     let ks: KeybaseService = KeybaseService::new();
     ks.start(
@@ -89,5 +90,4 @@ fn main() {
         cli_command,
         keybase_key,
     );
-    */
 }

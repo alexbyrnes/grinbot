@@ -1,6 +1,6 @@
 use futures::stream::Stream;
 use grinbot_core::controller::dispatch::{
-    get_action, get_command, get_new_ui, screen_reducer, tokenize_command,
+    get_action, get_command, screen_reducer, tokenize_command,
 };
 use grinbot_core::controller::types::{LoggableState, Screen, State};
 use grinbot_core::types::Context;
@@ -44,6 +44,30 @@ impl TelegramService {
 
             _ => (-1, None, None),
         }
+    }
+
+    /// Wraps message in Telegram UI.
+    fn get_telegram_ui(state: &State) -> SendMessage {
+        let id = state.id.unwrap();
+        let message = if let Some(m) = &state.message {
+            format!("{}", m)
+        } else {
+            "".to_string()
+        };
+
+        let mut msg = SendMessage::new(ChatId::new(id), message);
+
+        let keyboard = reply_markup!(
+            reply_keyboard,
+            selective,
+            one_time,
+            resize,
+            ["/balance", "/help"]
+        );
+
+        msg.parse_mode(ParseMode::Html);
+        msg.reply_markup(keyboard);
+        msg
     }
 
     pub fn start(
@@ -95,11 +119,16 @@ impl TelegramService {
         let api = Api::configure(key).build(core.handle()).unwrap();
 
         let future = api.stream().for_each(|update| {
+            // Unpack Telegram update (command from user).
             let (id, from_user, message) = Self::parse_update(update);
+            // Get the action associated with the command.
             let action = get_action(id, &from_user, message, &config_user);
+            // Dispatch the action.
             store.dispatch(action);
-            let reply = get_new_ui(store.state());
-            api.spawn(reply);
+            // Use the updated state to return an updated UI (reply message).
+            let ui = TelegramService::get_telegram_ui(store.state());
+            // Send reply to user.
+            api.spawn(ui);
             Ok(())
         });
 

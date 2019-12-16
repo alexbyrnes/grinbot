@@ -1,4 +1,3 @@
-extern crate telegram_bot;
 use askama::Template;
 use log::Level;
 
@@ -7,7 +6,6 @@ use crate::service::grin;
 use crate::template::templates::{HelpTemplate, SeedTemplate};
 
 use crate::service::types::GrinAmount;
-use telegram_bot::*;
 
 /// Main UI reducer: Returns a new State from an Action.
 pub fn screen_reducer(state: &State, action: &Action) -> State {
@@ -199,29 +197,6 @@ pub fn get_username_action(
             }
         }
     }
-}
-
-/// Returns the next Telegram message from the current state.
-pub fn get_new_ui(state: &State) -> SendMessage {
-    let mut msg = SendMessage::new(
-        ChatId::new(state.id.unwrap()),
-        if let Some(m) = &state.message {
-            format!("{}", m)
-        } else {
-            "".to_string()
-        },
-    );
-    let keyboard = reply_markup!(
-        reply_keyboard,
-        selective,
-        one_time,
-        resize,
-        ["/balance", "/help"]
-    );
-
-    msg.parse_mode(ParseMode::Html);
-    msg.reply_markup(keyboard);
-    msg
 }
 
 #[cfg(test)]
