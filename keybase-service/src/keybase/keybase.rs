@@ -6,6 +6,7 @@ use grinbot_core::types::Context;
 
 use crate::keybase::types::KeybaseMessageParseError;
 use redux_rs::{Store, Subscription};
+use regex::Regex;
 
 use futures::executor::block_on;
 use futures::prelude::*;
@@ -48,7 +49,7 @@ impl KeybaseService {
     pub fn get_keybase_ui(state: &State) -> (i64, String) {
         let id = state.id.unwrap();
         let message = if let Some(m) = &state.message {
-            format!("{}", m)
+            Self::html_to_markdown(m)
         } else {
             "".to_string()
         };
@@ -137,7 +138,19 @@ impl KeybaseService {
             info!("Running...");
         }
     }
+
+    /// Simple HTML to Markdown converter.
+    fn html_to_markdown(html: &str) -> String {
+        let reps = vec![(r"</?i>", "_"), (r"</?pre>", "```"), (r"</?b>", "*")];
+        let mut markdown = html.to_string();
+        reps.iter().for_each(|r| {
+            let re = Regex::new(r.0).unwrap();
+            markdown = re.replace_all(&markdown, r.1).into();
+        });
+        markdown
+    }
 }
+
 /*
 #[cfg(test)]
 mod tests {
