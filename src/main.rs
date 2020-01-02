@@ -35,11 +35,13 @@ fn main() {
     let yml = YamlLoader::load_from_str(&s).unwrap();
     let config = &yml[0];
 
+    // Get mode: Keybase (default) or Telegram
+    let telegram_mode: bool = config["telegram_mode"]
+        .as_bool()
+        .expect(&format!("telegram_mode required in config.yml"));
+
     // Get logging config
     let log_config = load_config_field(config, "log_config");
-
-    // Get bot key
-    let key = load_config_field(config, "telegram_bot_key");
 
     // Get wallet directory, either current or
     // future after create command.
@@ -52,42 +54,45 @@ fn main() {
     // when creating a wallet and with grin-wallet commands.
     let wallet_password = load_config_field(config, "wallet_password");
 
-    // Get username. This is the only user who may use
-    // the wallet.
-    let config_username = load_config_field(config, "username");
+    if telegram_mode {
+        // Get username. This is the only user who may use
+        // the wallet.
+        let config_username = load_config_field(config, "username");
 
-    /////
-    // Get keybase paperkey
-    let keybase_key = load_config_field(config, "keybase_paperkey");
+        // Get bot key
+        let key = load_config_field(config, "telegram_bot_key");
 
-    // Get keybase "from" (mobile) username
-    let keybase_from = load_config_field(config, "keybase_from_user");
+        // Initialize and start telegram service
+        let ts: TelegramService = TelegramService::new();
+        ts.start(
+            config_username,
+            wallet_dir.clone(),
+            owner_endpoint.clone(),
+            wallet_password.clone(),
+            log_config.clone(),
+            cli_command,
+            key,
+        );
+    } else {
+        // Get keybase paperkey
+        let keybase_key = load_config_field(config, "keybase_paperkey");
 
-    // Get keybase "to" (desktop) username
-    let keybase_config_username = load_config_field(config, "keybase_to_user");
+        // Get keybase "from" (mobile) username
+        let keybase_from = load_config_field(config, "keybase_from_user");
 
-    // Initialize and start telegram service
-    /*
-    let ts: TelegramService = TelegramService::new();
-    ts.start(
-        config_username,
-        wallet_dir,
-        owner_endpoint,
-        wallet_password,
-        log_config,
-        cli_command,
-        key,
-    );
-    */
-    // Initialize and start keybase service
-    let ks: KeybaseService = KeybaseService::new();
-    ks.start(
-        keybase_config_username,
-        wallet_dir,
-        owner_endpoint,
-        wallet_password,
-        log_config,
-        cli_command,
-        keybase_key,
-    );
+        // Get keybase "to" (desktop) username
+        let keybase_config_username = load_config_field(config, "keybase_to_user");
+
+        // Initialize and start keybase service
+        let ks: KeybaseService = KeybaseService::new();
+        ks.start(
+            keybase_config_username,
+            wallet_dir,
+            owner_endpoint,
+            wallet_password,
+            log_config,
+            cli_command,
+            keybase_key,
+        );
+    }
 }
