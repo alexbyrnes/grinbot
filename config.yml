@@ -1,6 +1,17 @@
-telegram_bot_key: <your bot key>
-username: your_telegram_username
+// Grin owner API
 wallet_dir: /mywallet
 wallet_password: change_me
-log_config: logging.yml
 owner_endpoint: http://127.0.0.1:3420/v2/owner
+
+// Keybase
+keybase_paperkey: keybase paper key etc etc
+keybase_from_user: your_mobile_username
+keybase_to_user: your_desktop_username //may be the same as mobile
+
+// Telegram
+telegram_mode: false
+username: your_telegram_username
+telegram_bot_key: <your bot key>
+
+// Logging
+log_config: logging.yml
