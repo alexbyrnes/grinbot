@@ -55,17 +55,17 @@ fn main() {
     let wallet_password = load_config_field(config, "wallet_password");
 
     if telegram_mode {
-        // Get username. This is the only user who may use
-        // the wallet.
-        let config_username = load_config_field(config, "username");
+        // Get telegram username.
+        // This is the only user who may use the wallet.
+        let telegram_from_user = load_config_field(config, "telegram_from_user");
 
         // Get bot key
-        let key = load_config_field(config, "telegram_bot_key");
+        let telegram_bot_key = load_config_field(config, "telegram_bot_key");
 
         // Initialize and start telegram service
         let ts: TelegramService = TelegramService::new();
         ts.start(
-            config_username,
+            telegram_from_user,
             wallet_dir.clone(),
             owner_endpoint.clone(),
             wallet_password.clone(),
@@ -74,25 +74,23 @@ fn main() {
             key,
         );
     } else {
-        // Get keybase paperkey
-        let keybase_key = load_config_field(config, "keybase_paperkey");
+        // Get keybase username.
+        // This is the only user who may use the wallet.
+        let keybase_from_user = load_config_field(config, "keybase_from_user");
 
-        // Get keybase "from" (mobile) username
-        let keybase_from = load_config_field(config, "keybase_from_user");
-
-        // Get keybase "to" (desktop) username
-        let keybase_config_username = load_config_field(config, "keybase_to_user");
+        // Get keybase paper key
+        let keybase_paper_key = load_config_field(config, "keybase_paper_key");
 
         // Initialize and start keybase service
         let ks: KeybaseService = KeybaseService::new();
         ks.start(
-            keybase_config_username,
+            keybase_from_user,
             wallet_dir,
             owner_endpoint,
             wallet_password,
             log_config,
             cli_command,
-            keybase_key,
+            keybase_paper_key,
         );
     }
 }
