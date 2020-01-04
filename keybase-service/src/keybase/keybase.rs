@@ -14,7 +14,7 @@ use futures::stream::StreamExt;
 use keybase_bot_api::chat::{ChannelParams, Notification};
 
 use keybase_bot_api::{ApiError, Bot, Chat};
-use keybase_protocol::chat1::{api, MsgSummary};
+use keybase_protocol::chat1::api;
 
 use std::error::Error;
 
@@ -112,7 +112,7 @@ impl KeybaseService {
             // Dispatch the action.
             store.dispatch(action);
             // Use the updated state to return an updated UI (reply message).
-            let (id, message) = KeybaseService::get_keybase_ui(store.state());
+            let (_id, message) = KeybaseService::get_keybase_ui(store.state());
             // Create channel parameters.
             let channel = ChannelParams {
                 name: format!("{},{}", bot.username, from_user.unwrap()),
