@@ -25,7 +25,7 @@ impl KeybaseService {
         KeybaseService {}
     }
 
-    fn parse_update(
+    pub fn parse_update(
         notification: Result<Notification, ApiError>,
     ) -> Result<(i64, Option<String>, Option<String>), Box<dyn Error>> {
         match notification.unwrap() {
@@ -152,110 +152,109 @@ impl KeybaseService {
     }
 }
 
-/*
 #[cfg(test)]
 mod tests {
     use super::*;
     use grinbot_core::controller::dispatch::get_action;
     use grinbot_core::controller::types::Action;
-    use telegram_bot::Update;
-
-    #[test]
-    fn raw_inline_query_update() {
-        let json = r#"{
-                  "update_id": 999999,
-                  "inline_query": {
-                    "id": "9999",
-                    "from": {
-                       "id":99,
-                       "username":"user123",
-                       "first_name":"firstname",
-                       "last_name":"lastname",
-                       "type": "private",
-                       "is_bot": false,
-                       "language_code":"en"
-                    },
-                    "query": "/send",
-                    "offset": ""
-                  }
-                }
-            "#;
-        let update = serde_json::from_str::<Update>(json).unwrap();
-        let (id, from_user, message) = parse_update(update);
-        assert_eq!(
-            Action::ModeNotSupported(99),
-            get_action(id, from_user, message, &"user123".to_string())
-        );
-    }
+    use keybase_bot_api::chat::Notification;
 
     #[test]
     fn raw_callback_query_update() {
         let json = r#"{
-                "update_id": 999999,
-                "message": {
-                  "message_id": 9999,
-                  "from": {
-                    "id": 99,
-                    "is_bot": false,
-                    "first_name": "firstname",
-                    "username": "user123",
-                    "language_code": "en"
-                  },
-                  "chat": {
-                    "id": 99,
-                    "first_name": "firstname",
-                    "username": "user123",
-                    "type": "private"
-                  },
-                  "date": 1568300000,
-                  "text": "/home",
-                  "entities": [
-                    {
-                      "offset": 0,
-                      "length": 5,
-                      "type": "bot_command"
-                    }]
-                }
-            }"#;
-        let update = serde_json::from_str::<Update>(json).unwrap();
-        let (id, from_user, message) = parse_update(update);
+          "type": "chat",
+          "source": "remote",
+          "msg": {
+            "id": 99,
+            "conversation_id": "1234",
+            "channel": {
+              "name": "testchannel",
+              "public": false,
+              "members_type": "team",
+              "topic_type": "chat",
+              "topic_name": "testtopic"
+            },
+            "sender": {
+              "uid": "123456",
+              "username": "user123",
+              "device_id": "1234567",
+              "device_name": "MY_DEVICE"
+            },
+            "sent_at": 1569300000,
+            "sent_at_ms": 1569300000000,
+            "content": {
+              "type": "text",
+              "text": {
+                "body": "/home",
+                "teamMentions": null
+              }
+            },
+            "prev": null,
+            "unread": false
+          },
+          "pagination": {
+            "next": "1",
+            "previous": "0",
+            "num": 1,
+            "last": false
+          }
+        }
+        "#;
+
+        let notification = serde_json::from_str::<Notification>(json).unwrap();
+        let (id, from_user, message) = KeybaseService::parse_update(Ok(notification)).unwrap();
         assert_eq!(
             Action::Home(99),
-            get_action(id, from_user, message, &"user123".to_string())
+            get_action(id, &from_user, message, &"user123".to_string())
         );
     }
 
     #[test]
     fn raw_message_update() {
         let json = r#"{
-            "update_id":999999,
-              "message":{
-                "date": 1568300000,
-                "chat":{
-                   "id":99,
-                   "username":"user123",
-                   "first_name":"firstname",
-                   "last_name":"lastname",
-                   "type": "private"
-                },
-                "message_id":9999,
-                "from":{
-                   "id":99,
-                   "username":"firstlast",
-                   "first_name":"firstname",
-                   "last_name":"lastname",
-                   "type": "private",
-                   "is_bot": false
-                },
-                "text":"/back"
+          "type": "chat",
+          "source": "remote",
+          "msg": {
+            "id": 99,
+            "conversation_id": "1234",
+            "channel": {
+              "name": "testchannel",
+              "public": false,
+              "members_type": "team",
+              "topic_type": "chat",
+              "topic_name": "testtopic"
+            },
+            "sender": {
+              "uid": "123456",
+              "username": "user123",
+              "device_id": "1234567",
+              "device_name": "MY_DEVICE"
+            },
+            "sent_at": 1569300000,
+            "sent_at_ms": 1569300000000,
+            "content": {
+              "type": "text",
+              "text": {
+                "body": "/back",
+                "teamMentions": null
               }
-            }"#;
-        let update = serde_json::from_str::<Update>(json).unwrap();
-        let (id, from_user, message) = parse_update(update);
+            },
+            "prev": null,
+            "unread": false
+          },
+          "pagination": {
+            "next": "1",
+            "previous": "0",
+            "num": 1,
+            "last": false
+          }
+        }
+        "#;
+        let notification = serde_json::from_str::<Notification>(json).unwrap();
+        let (id, from_user, message) = KeybaseService::parse_update(Ok(notification)).unwrap();
         assert_eq!(
             Action::Back(99),
-            get_action(id, from_user, message, &"user123".to_string())
+            get_action(id, &from_user, message, &"user123".to_string())
         );
     }
 }
-*/
