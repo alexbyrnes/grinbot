@@ -42,7 +42,7 @@ pub fn screen_reducer(state: &State, action: &Action) -> State {
                 &s.context.owner_endpoint,
                 &s.context.http_client,
             ) {
-                Ok(msg) => (format!("<b>Success:</b>\n{}", msg), None),
+                Ok(msg) => (format!("Success:\n{}", msg), None),
                 Err(e) => (format!("Error: {}", e), Some(Level::Info)),
             };
 
@@ -60,7 +60,7 @@ pub fn screen_reducer(state: &State, action: &Action) -> State {
                 &s.context.owner_endpoint,
                 &s.context.http_client,
             ) {
-                Ok(msg) => (format!("<b>Success:</b>\n{}", msg), None),
+                Ok(msg) => (format!("Success:\n{}", msg), None),
                 Err(e) => (format!("Error: {}", e), Some(Level::Info)),
             };
 
