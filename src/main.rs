@@ -96,7 +96,7 @@ fn main() {
             log_config,
             cli_command,
             keybase_paper_key,
-            keybase_to_user
+            keybase_to_user,
         );
     }
 }
