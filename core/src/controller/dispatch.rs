@@ -136,14 +136,14 @@ pub fn tokenize_command(raw_command: &str) -> (&str, Vec<&str>) {
 
 pub fn get_action(
     id: i64,
-    from_user: &Option<String>,
+    message_from_user: &Option<String>,
     message: Option<String>,
     config_user: &str,
 ) -> Action {
     if let Some(msg) = message {
         let (command_type, parameters) = tokenize_command(&msg);
         // Check for username before looking at command
-        match get_username_action(id, from_user, config_user) {
+        match get_username_action(id, message_from_user, config_user) {
             Some(action) => action,
             None => get_command(command_type, id, parameters),
         }
@@ -184,13 +184,13 @@ pub fn get_command(command_type: &str, id: i64, command: Vec<&str>) -> Action {
 /// Get actions associated with usernames
 pub fn get_username_action(
     id: i64,
-    username: &Option<String>,
+    message_from_user: &Option<String>,
     config_user: &str,
 ) -> Option<Action> {
-    match username {
+    match message_from_user {
         None => Some(Action::NoUsername(id)),
-        Some(current_username) => {
-            if current_username != config_user {
+        Some(username) => {
+            if username != config_user {
                 Some(Action::WrongUsername(id))
             } else {
                 None

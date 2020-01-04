@@ -71,7 +71,7 @@ fn main() {
             wallet_password.clone(),
             log_config.clone(),
             cli_command,
-            key,
+            telegram_bot_key,
         );
     } else {
         // Get keybase username.
@@ -80,6 +80,11 @@ fn main() {
 
         // Get keybase paper key
         let keybase_paper_key = load_config_field(config, "keybase_paper_key");
+
+        // Get local keybase bot user.
+        // This is the user associated with the paper key.
+        // May be the same as the "from" (usually mobile) user.
+        let keybase_to_user = load_config_field(config, "keybase_to_user");
 
         // Initialize and start keybase service
         let ks: KeybaseService = KeybaseService::new();
@@ -91,6 +96,7 @@ fn main() {
             log_config,
             cli_command,
             keybase_paper_key,
+            keybase_to_user
         );
     }
 }

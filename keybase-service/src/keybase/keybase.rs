@@ -58,13 +58,14 @@ impl KeybaseService {
 
     pub fn start(
         self,
-        config_user: String,
+        from_user: String,
         wallet_dir: String,
         owner_endpoint: String,
         wallet_password: String,
         log_config: String,
         cli_command: Option<&str>,
         key: String,
+        to_user: String, // local bot & paper key user
     ) {
         // Logging
         log4rs::init_file(log_config, Default::default()).unwrap();
@@ -101,21 +102,21 @@ impl KeybaseService {
         // Log actions
         store.subscribe(logging_listener);
 
-        let mut bot = Bot::new(&config_user, &key).unwrap();
+        let mut bot = Bot::new(&to_user, &key).unwrap();
 
         let notifications = bot.listen().unwrap();
         let future = notifications.for_each(|notification| {
             // Unpack Keybase update (command from user).
-            let (id, from_user, message) = Self::parse_update(notification).unwrap();
+            let (id, message_from_user, message) = Self::parse_update(notification).unwrap();
             // Get the action associated with the command.
-            let action = get_action(id, &from_user, message, &config_user);
+            let action = get_action(id, &message_from_user, message, &from_user);
             // Dispatch the action.
             store.dispatch(action);
             // Use the updated state to return an updated UI (reply message).
             let (_id, message) = KeybaseService::get_keybase_ui(store.state());
             // Create channel parameters.
             let channel = ChannelParams {
-                name: format!("{},{}", bot.username, from_user.unwrap()),
+                name: format!("{},{}", bot.username, from_user),
                 ..Default::default()
             };
             // Send reply to user.
