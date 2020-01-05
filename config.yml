@@ -1,18 +1,12 @@
-// Grin owner API
-wallet_dir: /mywallet
-wallet_password: change_me
-owner_endpoint: http://127.0.0.1:3420/v2/owner
-
-// Keybase
-// Messages (commands) are sent from the "from" user (usually on mobile) to the local "to" user.
-keybase_from_user: your_mobile_username // may be the same as desktop "to" user
-keybase_to_user: your_desktop_username // local desktop user associated with paper key.
-keybase_paper_key: keybase paper key etc etc
-
-// Telegram
 telegram_mode: false
-telegram_from_user: your_telegram_username
-telegram_bot_key: 1234:TELEGRAM_BOT_KEY
+telegram_from_user: alexbyrnes
+telegram_bot_key: 914093052:AAHLyu_qXRWWlHcArd61OYKKdIiEZSVlOD4
 
-// Logging
+keybase_from_user: alexbyrnes
+keybase_to_user: alexbyrnes
+keybase_paper_key: utility degree amused manage benefit among hip soccer happy off kiss despair hair
+
+wallet_dir: /home/alex/evaluate/wallets/mywallet
+wallet_password: pass
 log_config: logging.yml
+owner_endpoint: http://127.0.0.1:3420/v2/owner

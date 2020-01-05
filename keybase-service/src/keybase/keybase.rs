@@ -17,6 +17,7 @@ use keybase_bot_api::{ApiError, Bot, Chat};
 use keybase_protocol::chat1::api;
 
 use std::error::Error;
+use std::process;
 
 pub struct KeybaseService {}
 
@@ -102,6 +103,17 @@ impl KeybaseService {
         // Log actions
         store.subscribe(logging_listener);
 
+        // Run the command line update, if any, and exit.
+        if let Some(command) = cli_command {
+            let (command_type, parameters) = tokenize_command(&command);
+            let action = get_command(command_type, 0, parameters);
+            store.dispatch(action);
+            let message = &store.state().message;
+            println!("{}", message.clone().unwrap());
+            process::exit(0x0100);
+        }
+
+        // No command line, start bot.
         let mut bot = Bot::new(&to_user, &key).unwrap();
 
         let notifications = bot.listen().unwrap();
@@ -126,18 +138,9 @@ impl KeybaseService {
             future::ready(())
         });
 
-        // Run the command line update, if any.
-        if let Some(command) = cli_command {
-            let (command_type, parameters) = tokenize_command(&command);
-            let action = get_command(command_type, 0, parameters);
-            store.dispatch(action);
-            let message = &store.state().message;
-            println!("{}", message.clone().unwrap());
-        } else {
-            // Start main loop
-            block_on(future);
-            info!("Running...");
-        }
+        // Start main loop
+        block_on(future);
+        info!("Running...");
     }
 
     /// Simple HTML to Markdown converter.
