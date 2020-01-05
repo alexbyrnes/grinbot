@@ -202,7 +202,7 @@ pub fn get_username_action(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::controller::dispatch::{get_action, get_command};
+    use crate::controller::dispatch::get_command;
     use crate::controller::types::{Action, SendCommand};
 
     #[test]
