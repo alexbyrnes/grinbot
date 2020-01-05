@@ -251,4 +251,39 @@ mod tests {
             get_action(id, &from_user, message, &"user123".to_string())
         );
     }
+
+    #[test]
+    fn raw_wrong_username() {
+        let json = r#"{
+            "update_id":999999,
+              "message":{
+                "date": 1568300000,
+                "chat":{
+                   "id":101,
+                   "username":"user321",
+                   "first_name":"firstname",
+                   "last_name":"lastname",
+                   "type": "private"
+                },
+                "message_id":9999,
+                "from":{
+                   "id":99,
+                   "username":"firstlast",
+                   "first_name":"firstname",
+                   "last_name":"lastname",
+                   "type": "private",
+                   "is_bot": false
+                },
+                "text":"abc 123"
+              }
+            }"#;
+        let update = serde_json::from_str::<Update>(json).unwrap();
+        let (id, from_user, message) = TelegramService::parse_update(update);
+        assert_eq!(
+            Action::WrongUsername(101),
+            get_action(id, &from_user, message, &"user123".to_string())
+        );
+    }
+
+
 }

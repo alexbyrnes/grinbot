@@ -257,4 +257,54 @@ mod tests {
             get_action(id, &from_user, message, &"user123".to_string())
         );
     }
+
+    #[test]
+    fn raw_wrong_username() {
+        let json = r#"{
+          "type": "chat",
+          "source": "remote",
+          "msg": {
+            "id": 101,
+            "conversation_id": "1234",
+            "channel": {
+              "name": "testchannel",
+              "public": false,
+              "members_type": "team",
+              "topic_type": "chat",
+              "topic_name": "testtopic"
+            },
+            "sender": {
+              "uid": "123456",
+              "username": "user321",
+              "device_id": "1234567",
+              "device_name": "MY_DEVICE"
+            },
+            "sent_at": 1569300000,
+            "sent_at_ms": 1569300000000,
+            "content": {
+              "type": "text",
+              "text": {
+                "body": "abc 123",
+                "teamMentions": null
+              }
+            },
+            "prev": null,
+            "unread": false
+          },
+          "pagination": {
+            "next": "1",
+            "previous": "0",
+            "num": 1,
+            "last": false
+          }
+        }
+        "#;
+        let notification = serde_json::from_str::<Notification>(json).unwrap();
+        let (id, from_user, message) = KeybaseService::parse_update(Ok(notification)).unwrap();
+        assert_eq!(
+            Action::WrongUsername(101),
+            get_action(id, &from_user, message, &"user123".to_string())
+        );
+    }
+
 }
