@@ -42,6 +42,8 @@ pub fn send(
             post_tx: true,
             fluff: false,
         }),
+        payment_proof_recipient_address: None,
+        ttl_blocks: None,
     };
 
     let args = Args {
