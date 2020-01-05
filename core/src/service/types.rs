@@ -121,7 +121,7 @@ impl NanoGrinAmount {
     }
 }
 
-// WalletInfo with whole Grin amounts
+/// WalletInfo with whole Grin amounts.
 #[derive(Debug, Copy, Clone)]
 pub struct WalletInfoGrin {
     pub last_confirmed_height: u64,

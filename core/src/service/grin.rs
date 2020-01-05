@@ -17,7 +17,7 @@ use crate::service::types::{
 };
 use crate::template::templates::{InfoSuccessTemplate, SendSuccessTemplate};
 
-/// Sends Grin
+/// Sends Grin.
 pub fn send(
     amount: GrinAmount,
     dest: &str,
@@ -88,7 +88,7 @@ pub fn send(
     }
 }
 
-/// Gets balance
+/// Gets balance.
 pub fn balance(
     wallet_dir: &str,
     owner_endpoint: &str,

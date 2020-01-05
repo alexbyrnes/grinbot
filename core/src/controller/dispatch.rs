@@ -128,12 +128,13 @@ pub fn screen_reducer(state: &State, action: &Action) -> State {
     }
 }
 
-/// Splits command into type and parameters
+/// Splits command into type and parameters.
 pub fn tokenize_command(raw_command: &str) -> (&str, Vec<&str>) {
     let message_tokens: Vec<&str> = raw_command.split(" ").collect();
     (message_tokens[0], message_tokens[1..].to_vec())
 }
 
+/// Gets the action associated with any command.
 pub fn get_action(
     id: i64,
     message_from_user: &Option<String>,
@@ -181,7 +182,7 @@ pub fn get_command(command_type: &str, id: i64, command: Vec<&str>) -> Action {
     }
 }
 
-/// Get actions associated with usernames
+/// Gets actions associated with usernames.
 pub fn get_username_action(
     id: i64,
     message_from_user: &Option<String>,

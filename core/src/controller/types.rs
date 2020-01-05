@@ -103,7 +103,7 @@ impl SendCommand {
     }
 }
 
-/// Errors associated with parsing commands
+/// Errors associated with parsing commands.
 #[derive(Debug, PartialEq)]
 pub enum CommandParseError {
     WrongNumberOfArgsError(String),
