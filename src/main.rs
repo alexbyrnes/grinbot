@@ -4,8 +4,8 @@ use yaml_rust::{Yaml, YamlLoader};
 use std::fs::File;
 use std::io::prelude::*;
 
-use keybase_service::keybase::KeybaseService;
-use telegram_service::telegram::TelegramService;
+use grinbot_keybase_service::keybase::KeybaseService;
+use grinbot_telegram_service::telegram::TelegramService;
 
 fn load_config_field(config: &Yaml, field: &str) -> String {
     config[field]

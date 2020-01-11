@@ -1,7 +1,14 @@
 [package]
-name = "telegram_service"
+name = "grinbot_telegram_service"
 version = "0.1.0-alpha.1"
 authors = ["Alex Byrnes <alexbyrnes@protonmail.com>"]
+license = "MIT"
+description = "Keybase and Telegram bot for Grin: Telegram service"
+homepage = "https://github.com/alexbyrnes/grinbot"
+documentation = "https://github.com/alexbyrnes/grinbot"
+repository = "https://github.com/alexbyrnes/grinbot"
+keywords = [ "cryptocurrency", "blockchain", "wallet", "chatbot", "mimblewimble", "grin" ]
+categories = [ "cryptography::cryptocurrencies" ]
 edition = "2018"
 
 [dependencies]
