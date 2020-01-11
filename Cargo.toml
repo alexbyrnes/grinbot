@@ -1,0 +1,25 @@
+[package]
+name = "grinbot"
+version = "0.1.0-alpha.1"
+authors = ["Alex Byrnes <alexbyrnes@protonmail.com>"]
+
+license = "MIT"
+description = "Keybase and Telegram bot for Grin"
+homepage = "https://github.com/alexbyrnes/grinbot"
+documentation = "https://github.com/alexbyrnes/grinbot"
+repository = "https://github.com/alexbyrnes/grinbot"
+keywords = [ "cryptocurrency", "blockchain", "chatbot", "mimblewimble", "grin" ]
+categories = [ "cryptography::cryptocurrencies" ]
+readme = "README.md"
+edition = "2018"
+
+[workspace]
+members = ["core", "telegram-service", "keybase-service"]
+
+[dependencies]
+grinbot_telegram_service = { path = "./telegram-service/", version= "0.1.0-alpha.1"}
+grinbot_keybase_service = { path = "./keybase-service/", version= "0.1.0-alpha.1"}
+grinbot_core = { path = "./core/", version= "0.1.0-alpha.1"}
+clap = { version = "2.31", features = ["yaml"] }
+yaml-rust = "0.4.3"
+

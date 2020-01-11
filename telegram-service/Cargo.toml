@@ -1,0 +1,26 @@
+[package]
+name = "grinbot_telegram_service"
+version = "0.1.0-alpha.1"
+authors = ["Alex Byrnes <alexbyrnes@protonmail.com>"]
+license = "MIT"
+description = "Keybase and Telegram bot for Grin: Telegram service"
+homepage = "https://github.com/alexbyrnes/grinbot"
+documentation = "https://github.com/alexbyrnes/grinbot"
+repository = "https://github.com/alexbyrnes/grinbot"
+keywords = [ "cryptocurrency", "blockchain", "chatbot", "mimblewimble", "grin" ]
+categories = [ "cryptography::cryptocurrencies" ]
+edition = "2018"
+
+[dependencies]
+tokio = "0.1.11"
+tokio-core = "0.1"
+futures = "0.1"
+telegram-bot = "0.6.3"
+grinbot_core = { path = "../core/", version= "0.1.0-alpha.1"}
+reqwest = "0.9.1"
+redux-rs = "0.1.0"
+log = "0.4.8"
+log4rs = "0.8.3"
+serde_json = "1.0.40"
+serde = "1.0.99"
+
