@@ -1,2 +1,2 @@
-//! HTML templates for Telegram messages
+//! HTML templates for chat messages
 pub mod templates;

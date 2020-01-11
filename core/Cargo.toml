@@ -1,7 +1,7 @@
 [package]
 name = "grinbot_core"
-version = "0.0.1"
-authors = ["Alex Byrnes <alexbyrnes@gmail.com>"]
+version = "0.1.0-alpha.1"
+authors = ["Alex Byrnes <alexbyrnes@protonmail.com>"]
 edition = "2018"
 
 [dependencies]
