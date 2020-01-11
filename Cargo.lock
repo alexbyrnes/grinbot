@@ -1015,18 +1015,18 @@ dependencies = [
 
 [[package]]
 name = "grinbot"
-version = "0.0.1"
+version = "0.1.0-alpha.1"
 dependencies = [
  "clap 2.33.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "grinbot_core 0.0.1",
- "keybase_service 0.0.1",
- "telegram_service 0.0.1",
+ "grinbot_core 0.1.0-alpha.1",
+ "keybase_service 0.1.0-alpha.1",
+ "telegram_service 0.1.0-alpha.1",
  "yaml-rust 0.4.3 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
 name = "grinbot_core"
-version = "0.0.1"
+version = "0.1.0-alpha.1"
 dependencies = [
  "askama 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "grin_wallet_libwallet 3.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1268,10 +1268,10 @@ dependencies = [
 
 [[package]]
 name = "keybase_service"
-version = "0.0.1"
+version = "0.1.0-alpha.1"
 dependencies = [
  "futures-preview 0.3.0-alpha.19 (registry+https://github.com/rust-lang/crates.io-index)",
- "grinbot_core 0.0.1",
+ "grinbot_core 0.1.0-alpha.1",
  "keybase-bot-api 0.4.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "keybase-protocol 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -2557,10 +2557,10 @@ dependencies = [
 
 [[package]]
 name = "telegram_service"
-version = "0.0.1"
+version = "0.1.0-alpha.1"
 dependencies = [
  "futures 0.1.28 (registry+https://github.com/rust-lang/crates.io-index)",
- "grinbot_core 0.0.1",
+ "grinbot_core 0.1.0-alpha.1",
  "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)",
  "log4rs 0.8.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "redux-rs 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",

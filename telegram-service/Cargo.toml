@@ -1,6 +1,6 @@
 [package]
 name = "telegram_service"
-version = "0.0.1"
+version = "0.1.0-alpha.1"
 authors = ["Alex Byrnes <alexbyrnes@protonmail.com>"]
 edition = "2018"
 
@@ -9,7 +9,7 @@ tokio = "0.1.11"
 tokio-core = "0.1"
 futures = "0.1"
 telegram-bot = "0.6.3"
-grinbot_core = { path = "../core/", version= "0.0.1"}
+grinbot_core = { path = "../core/", version= "0.1.0-alpha.1"}
 reqwest = "0.9.1"
 redux-rs = "0.1.0"
 log = "0.4.8"
