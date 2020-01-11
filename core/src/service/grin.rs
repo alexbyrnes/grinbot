@@ -17,7 +17,7 @@ use crate::service::types::{
 };
 use crate::template::templates::{InfoSuccessTemplate, SendSuccessTemplate};
 
-/// Sends Grin
+/// Sends Grin.
 pub fn send(
     amount: GrinAmount,
     dest: &str,
@@ -42,6 +42,8 @@ pub fn send(
             post_tx: true,
             fluff: false,
         }),
+        payment_proof_recipient_address: None,
+        ttl_blocks: None,
     };
 
     let args = Args {
@@ -86,7 +88,7 @@ pub fn send(
     }
 }
 
-/// Gets balance
+/// Gets balance.
 pub fn balance(
     wallet_dir: &str,
     owner_endpoint: &str,

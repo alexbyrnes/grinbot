@@ -1,6 +1,18 @@
-telegram_bot_key: <your bot key>
-username: your_telegram_username
+// Grin owner API
 wallet_dir: /mywallet
 wallet_password: change_me
-log_config: logging.yml
 owner_endpoint: http://127.0.0.1:3420/v2/owner
+
+// Keybase
+// Messages (commands) are sent from the "from" user (usually on mobile) to the local "to" user.
+keybase_from_user: your_mobile_username // may be the same as desktop "to" user
+keybase_to_user: your_desktop_username // local desktop user associated with paper key.
+keybase_paper_key: keybase paper key etc etc
+
+// Telegram
+telegram_mode: false
+telegram_from_user: your_telegram_username
+telegram_bot_key: 1234:TELEGRAM_BOT_KEY
+
+// Logging
+log_config: logging.yml
