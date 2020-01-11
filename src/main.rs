@@ -35,6 +35,13 @@ fn main() {
     let yml = YamlLoader::load_from_str(&s).unwrap();
     let config = &yml[0];
 
+    // Exit if config has not been edited.
+    let sample_mode: bool = config["sample"].as_bool().unwrap_or(false);
+
+    if sample_mode {
+        panic!("\n\nWarning: Sample mode. Edit config.yml with your own credentials and remove \"sample: true\" to continue.\n\n");
+    }
+
     // Get mode: Keybase (default) or Telegram
     let telegram_mode: bool = config["telegram_mode"]
         .as_bool()
