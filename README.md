@@ -2,7 +2,7 @@
 
 Grin Bot is a self-hosted Keybase or Telegram bot wallet for the [Grin](https://grin-tech.org/) cryptocurrency. You can run Grin Bot on your own desktop hardware, and control it from a smartphone.
 
-![Mobile](screenshots/mobile.png)
+![Mobile](images/mobile.png)
 
 # Getting started
 
@@ -108,6 +108,7 @@ The only information that is sent to Telegram is the contents of the chat itself
 
 *_Note:_* Telegram bot traffic is _not_ end-to-end encrypted, however Telegram claims [GDPR compliance](https://telegram.org/faq#q-what-about-gdpr) and the ability to [delete messages](https://telegram.org/faq#q-can-i-delete-my-messages). If you are using Grin Bot for purposes that require stronger security guarantees than these, you should not use this version of Grin Bot.
 
+![Architecture diagram](images/architecture.svg)
 
 ## Roadmap
 * Command aliases
