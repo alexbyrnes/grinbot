@@ -1,6 +1,6 @@
 # Grin Bot
 
-Grin Bot is a self-hosted Keybase or Telegram bot wallet for the [Grin](https://grin-tech.org/) cryptocurrency. You can run Grin Bot on your own desktop hardware, and control it from a smartphone.
+Grin Bot is a self-hosted Keybase or Telegram bot wallet for the [Grin](https://grin.mw/) cryptocurrency. You can run Grin Bot on your own desktop hardware, and control it from a smartphone.
 
 ![Mobile](images/mobile.png)
 
